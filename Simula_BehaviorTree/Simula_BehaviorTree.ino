@@ -35,19 +35,19 @@ Cruise cruise;
 
 
 void setup() {
+	Serial.begin(9600);
 	randomSeed(analogRead(A3));
 	hardware.init();
 	sensors.init();
 	motors.setMotors(&motorLeft, &motorRight);
-	Serial.begin(9600);
-	Serial.println("Booting.");
-
 	sensorState.irFrontCM = 1;
 	
 	behaviorTree.setRootChild(&selector[0]);
 	selector[0].addChildren({ &selector[1], &cruise });
 	selector[1].addChildren({ &cliffCenter, &cliffLeft, &cliffRight });
-
+	//wait for sensors to kick in.
+	delay(500);
+	Serial.println("Setup complete.");
 	/*motorLeft.setPower(120);
 	motorRight.setPower(120);
 	delay(500);
@@ -63,6 +63,7 @@ void loop() {
 	if (!sensors.sensorsUpdated()) {
 		sensors.readIR();
 	}
+	treeState.currentTime = millis();
 	
 	if (!behaviorTree.run()) {
 		Serial.println("Tree did not complete.");

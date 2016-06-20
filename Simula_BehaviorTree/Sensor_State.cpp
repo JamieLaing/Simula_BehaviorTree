@@ -35,7 +35,7 @@ boolean Sensors::sensorsUpdated() {
 
 	if (lastIrPollSensors == 0)
 	{
-		Serial.println("Sensors not initialized.");
+		//Serial.println("Sensors not initialized.");
 		// First Read of Sensors - pre-debounce
 		return false;
 	}
