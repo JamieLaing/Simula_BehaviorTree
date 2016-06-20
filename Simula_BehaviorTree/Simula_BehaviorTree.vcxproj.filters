@@ -36,6 +36,15 @@
     <ClInclude Include="PingDistance.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BehaviorTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sensor_State.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DistanceSensor.cpp">
@@ -51,6 +60,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PingDistance.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sensor_State.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

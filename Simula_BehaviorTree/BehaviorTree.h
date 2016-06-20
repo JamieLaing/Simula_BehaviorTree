@@ -9,6 +9,8 @@
 	#include "WProgram.h"
 #endif
 
+#include "Motor.h"
+#include "Sensor_State.h"
 #include <StandardCplusplus.h>
 #include <list>
 #include <vector>
@@ -16,10 +18,13 @@
 #include <algorithm>
 
 class BehaviourTree {  // Note:  A proper copy constructor and assignment operator should be defined, since the implicit ones use shallow copies only.
+private:
+	
 public:
 	class Node {  // This class represents each node in the behaviour tree.
 	public:
 		virtual bool run() = 0;
+
 	};
 
 	class CompositeNode : public Node {  //  This type of Node follows the Composite Pattern, containing a list of other Nodes.
@@ -61,7 +66,7 @@ public:
 	public:
 		virtual bool run() override {
 			for (Node* child : getChildren()) {  // The generic Sequence implementation.
-				if (!child->run())  // If one child fails, then enter operation run() fails.  Success only results if all children succeed.
+				if (!child->run())  // If one child fails, the entire operation run() fails.  Success only results if all children succeed.
 					return false;
 			}
 			return true;  // All children suceeded, so the entire run() operation succeeds.
@@ -83,6 +88,12 @@ public:
 	bool run() const { return root->run(); }
 };
 
+struct TREE_STATE {
+	String currentNode;
+	unsigned long nodeStartTime;
+};
+extern struct TREE_STATE treeState;
+
 class Action : public BehaviourTree::Node {
 private:
 	String name;
@@ -91,8 +102,13 @@ public:
 	Action(const String newName, int prob) : name(newName), probabilityOfSuccess(prob) {}
 private:
 	virtual bool run() override {
-		randomSeed(analogRead(A3));
 		long randNum = random(1, 101);
+
+		Serial.print("front cm: ");
+		Serial.println(sensorState.irFrontCM);
+		
+		sensorState.irFrontCM++;
+
 		Serial.print("random number: ");
 		Serial.println(randNum);
 		Serial.print(name);
@@ -104,6 +120,65 @@ private:
 		Serial.println(" failed.");
 		Serial.println("");
 		return false;
+	}
+};
+
+class CliffCenter : public BehaviourTree::Node {
+private:
+	String name = "Cliff Center";
+	const long duration = 200;
+	virtual bool run() override {
+		unsigned long currentTime = millis();
+		if (name != treeState.currentNode)
+		{
+			if (sensorState.irLeftCliff && sensorState.irRightCliff) {
+				Serial.println("Cliff center detected.");
+				treeState.currentNode = name;
+				treeState.nodeStartTime = currentTime;
+				motors.motorLeft->setPower(-120);
+				motors.motorRight->setPower(-120);
+				return true;
+			}
+		}
+		else {
+			if (treeState.nodeStartTime + duration < currentTime) {
+				treeState.currentNode = "";
+				treeState.nodeStartTime = 0;
+				motors.motorLeft->powerOff();
+				motors.motorRight->powerOff();
+			}
+		}
+		return false;
+	}
+};
+
+class CliffLeft : public BehaviourTree::Node {
+private:
+	virtual bool run() override {
+		if (sensorState.irLeftCliff) {
+			Serial.println("Cliff left detected.");
+			return true;
+		}
+		return false;
+	}
+};
+
+class CliffRight : public BehaviourTree::Node {
+private:
+	virtual bool run() override {
+		if (sensorState.irRightCliff) {
+			Serial.println("Cliff right detected.");
+			return true;
+		}
+		return false;
+	}
+};
+
+class Cruise : public BehaviourTree::Node {
+private:
+	virtual bool run() override {
+		Serial.println("Cruising.");
+		return true;
 	}
 };
 

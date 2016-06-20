@@ -34,5 +34,17 @@ public:
 	void setEncoderRate(int32_t pulsesPerSecond);
 };
 
+class Motors {
+public:
+	Motor* motorLeft;
+	Motor* motorRight;
+	void setMotors(Motor* mtrLeft, Motor* mtrRight) {
+		motorLeft = mtrLeft;
+		motorRight = mtrRight;
+	}
+};
+
+extern Motors motors;
+
 #endif
 

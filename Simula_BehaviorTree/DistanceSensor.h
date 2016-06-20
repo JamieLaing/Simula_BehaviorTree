@@ -13,7 +13,6 @@ class DistanceSensor {
 public:
 	int _readingPin;
 	int _activationPin;
-public:
 	inline virtual void activate();
 	inline virtual void deactivate();
 	DistanceSensor(int activationPin, int readingPin);

@@ -45,10 +45,10 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Program Files (x86)\Arduino\libraries;C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries;C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\Extensions\kumxtvsb.hav\Micro Platforms\default\debuggers;C:\Users\jlaing\Documents\Arduino\libraries;C:\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino;C:\Program Files (x86)\Arduino\hardware\arduino\avr\variants\mega;c:\Users\jlaing\documents\visual studio 2015\Projects\Simula_BehaviorTree\Simula_BehaviorTree;C:\Program Files (x86)\Arduino\hardware\tools\avr/avr/include/;C:\Program Files (x86)\Arduino\hardware\tools\avr//avr/include/avr/;C:\Program Files (x86)\Arduino\hardware\tools\avr/lib\gcc\avr\4.8.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <ForcedIncludeFiles>c:\Users\jlaing\documents\visual studio 2015\Projects\Simula_BehaviorTree\Simula_BehaviorTree\__vm\.Simula_BehaviorTree.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Arduino\libraries\SD\src;C:\Program Files (x86)\Arduino\libraries\SD\src\utility;C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\SPI\src;C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\SPI\src\utility;C:\Users\jlaing\Documents\Arduino\libraries\StandardCplusplus-master;C:\Users\jlaing\Documents\Arduino\libraries\StandardCplusplus-master\utility;C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\Wire\src;C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\Wire\src\utility;C:\Program Files (x86)\Arduino\libraries;C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries;C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\Extensions\kumxtvsb.hav\Micro Platforms\default\debuggers;C:\Users\jlaing\Documents\Arduino\libraries;C:\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino;C:\Program Files (x86)\Arduino\hardware\arduino\avr\variants\mega;C:\Users\jlaing\Documents\Visual Studio 2015\Projects\Simula_BehaviorTree\Simula_BehaviorTree;C:\Program Files (x86)\Arduino\hardware\tools\avr/avr/include/;C:\Program Files (x86)\Arduino\hardware\tools\avr//avr/include/avr/;C:\Program Files (x86)\Arduino\hardware\tools\avr/lib\gcc\avr\4.8.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles>C:\Users\jlaing\Documents\Visual Studio 2015\Projects\Simula_BehaviorTree\Simula_BehaviorTree\__vm\.Simula_BehaviorTree.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
-      <PreprocessorDefinitions>__AVR_ATmega2560__;F_CPU=16000000L;ARDUINO=10609;ARDUINO_AVR_MEGA2560;ARDUINO_ARCH_AVR;__cplusplus=201103L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>__AVR_ATmega2560__;_VMDEBUG=1;F_CPU=16000000L;ARDUINO=10609;ARDUINO_AVR_MEGA2560;ARDUINO_ARCH_AVR;__cplusplus=201103L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -74,21 +74,31 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BehaviorTree.h" />
     <ClInclude Include="DistanceSensor.h" />
+    <ClInclude Include="Hardware.h" />
     <ClInclude Include="IR_AnalogDistance.h" />
     <ClInclude Include="IR_BinaryDistance.h" />
     <ClInclude Include="Motor.h" />
     <ClInclude Include="PingDistance.h" />
+    <ClInclude Include="Sensor_State.h" />
     <ClInclude Include="__vm\.Simula_BehaviorTree.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DistanceSensor.cpp" />
+    <ClCompile Include="Hardware.cpp" />
     <ClCompile Include="IR_AnalogDistance.cpp" />
     <ClCompile Include="IR_BinaryDistance.cpp" />
     <ClCompile Include="Motor.cpp" />
     <ClCompile Include="PingDistance.cpp" />
+    <ClCompile Include="Sensor_State.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties arduino.upload.port="COM5" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

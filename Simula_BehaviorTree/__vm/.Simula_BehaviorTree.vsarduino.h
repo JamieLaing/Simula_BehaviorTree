@@ -11,6 +11,7 @@
 #ifndef _VSARDUINO_H_
 #define _VSARDUINO_H_
 #define __AVR_ATmega2560__
+#define _VMDEBUG 1
 #define F_CPU 16000000L
 #define ARDUINO 10609
 #define ARDUINO_AVR_MEGA2560
@@ -50,4 +51,19 @@ extern "C" void __cxa_pure_virtual() {;}
 #undef PSTR
 #define PSTR(string_literal) ((const PROGMEM char *)(string_literal))")
 #include <Simula_BehaviorTree.ino>
+#include <BehaviorTree.h>
+#include <DistanceSensor.cpp>
+#include <DistanceSensor.h>
+#include <Hardware.cpp>
+#include <Hardware.h>
+#include <IR_AnalogDistance.cpp>
+#include <IR_AnalogDistance.h>
+#include <IR_BinaryDistance.cpp>
+#include <IR_BinaryDistance.h>
+#include <Motor.cpp>
+#include <Motor.h>
+#include <PingDistance.cpp>
+#include <PingDistance.h>
+#include <Sensor_State.cpp>
+#include <Sensor_State.h>
 #endif
