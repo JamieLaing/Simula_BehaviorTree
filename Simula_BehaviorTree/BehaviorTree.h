@@ -174,8 +174,8 @@ private:
 			}
 		}
 		else {
-			Serial.println(F("Running cliff center."));
 			if ((treeState.nodeStartTime + duration < treeState.currentTime) && (!sensorState.irLeftCliff && !sensorState.irRightCliff)) {
+				Serial.println(F("Cliff center complete."));
 				treeState.currentNode = "";
 				treeState.nodeStartTime = 0;
 				motors.motorLeft->powerOff();
@@ -208,8 +208,8 @@ private:
 			if ((treeState.nodeStartTime + backMillis < treeState.currentTime) && !turnStarted) {
 				Serial.println(F("Cliff left turning."));
 				turnStarted = true;
-				motors.motorLeft->setPower(120);
-				motors.motorRight->setPower(-120);
+				motors.motorLeft->setPower(180);
+				motors.motorRight->setPower(-180);
 			}
 			if (treeState.nodeStartTime + backMillis + turnMillis < treeState.currentTime) {
 				Serial.println(F("Cliff left stopping."));
@@ -245,8 +245,8 @@ private:
 			if ((treeState.nodeStartTime + backMillis < treeState.currentTime) && !turnStarted) {
 				Serial.println(F("Cliff right turning."));
 				turnStarted = true;
-				motors.motorLeft->setPower(-120);
-				motors.motorRight->setPower(120);
+				motors.motorLeft->setPower(-180);
+				motors.motorRight->setPower(180);
 			}
 			if (treeState.nodeStartTime + backMillis + turnMillis < treeState.currentTime) {
 				Serial.println(F("Cliff right stopping."));
