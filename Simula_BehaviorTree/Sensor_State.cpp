@@ -11,7 +11,7 @@ void Sensors::init() {
 	digitalWrite(hardware.pinActEdge1, HIGH);
 	digitalWrite(hardware.pinActEdge2, HIGH);
 	lastIrPollSensors = 0;
-	Serial.println("Sensors initialized.");
+	Serial.println(F("Sensors initialized."));
 }
 
 void Sensors::readIR() {
@@ -50,7 +50,7 @@ boolean Sensors::sensorsUpdated() {
 
 	if (diff > 1200)
 	{
-		Serial.println("Long loop.");
+		Serial.println(F("Long loop."));
 		// We lost some loop time, force a blocking poll
 		delay(5);
 		return false;

@@ -106,22 +106,54 @@ private:
 	virtual bool run() override {
 		long randNum = random(1, 101);
 
-		Serial.print("front cm: ");
-		Serial.println(sensorState.irFrontCM);
-		
-		sensorState.irFrontCM++;
-
-		Serial.print("random number: ");
+		Serial.print(F("random number: "));
 		Serial.println(randNum);
 		Serial.print(name);
 		if (randNum <= probabilityOfSuccess) {
-			Serial.println(" succeeded.");
+			Serial.println(F(" succeeded."));
 			Serial.println("");
 			return true;
 		}
-		Serial.println(" failed.");
-		Serial.println("");
+		Serial.println(F(" failed."));
+		Serial.println(F(""));
 		return false;
+	}
+};
+
+class ButtonStop : public BehaviourTree::Node {
+private:
+	String name = "Button";
+	bool buttonState = false;
+	int lastButtonState = HIGH;
+	unsigned long debounceTime;
+	const long debounceDelay = 10;
+	virtual bool run() override{
+		int reading = digitalRead(hardware.pinButton);
+		if (reading != lastButtonState) {
+			debounceTime = millis();
+		}
+
+		if ((millis() - debounceTime) > debounceDelay) {
+			if (reading != buttonState) {
+				buttonState = reading;
+				if (buttonState == HIGH) {
+					sensorState.buttonPressed = !sensorState.buttonPressed;
+					Serial.print(F("Button toggle: "));
+					Serial.println(sensorState.buttonPressed);
+					if (sensorState.buttonPressed)
+					{
+						treeState.currentNode = name;
+						motors.motorLeft->powerOff();
+						motors.motorRight->powerOff();
+					}
+					else {
+						treeState.currentNode = "";
+					}
+				}
+			}
+		}
+		lastButtonState = reading;
+		return sensorState.buttonPressed;
 	}
 };
 
@@ -133,7 +165,7 @@ private:
 		if (!name.equals(treeState.currentNode))
 		{
 			if (sensorState.irLeftCliff && sensorState.irRightCliff) {
-				Serial.println("Cliff center detected.");
+				Serial.println(F("Cliff center detected."));
 				treeState.currentNode = name;
 				treeState.nodeStartTime = treeState.currentTime;
 				motors.motorLeft->setPower(-120);
@@ -142,7 +174,7 @@ private:
 			}
 		}
 		else {
-			Serial.println("Running cliff center.");
+			Serial.println(F("Running cliff center."));
 			if ((treeState.nodeStartTime + duration < treeState.currentTime) && (!sensorState.irLeftCliff && !sensorState.irRightCliff)) {
 				treeState.currentNode = "";
 				treeState.nodeStartTime = 0;
@@ -157,13 +189,15 @@ private:
 class CliffLeft : public BehaviourTree::Node {
 private:
 	String name = "Cliff Left";
-	const long duration1 = 200;
-	const long duration2 = 600;  //durations not additive, subtract duration1 to find execution time
+	const long backMillis = 400;
+	const long turnMillis = 400;
+	bool turnStarted;
 	virtual bool run() override {
 		if (!name.equals(treeState.currentNode)) {
 			if (sensorState.irLeftCliff && !sensorState.irRightCliff) {
-				Serial.println("Cliff left detected.");
+				Serial.println(F("Cliff left detected."));
 				treeState.currentNode = name;
+				turnStarted = false;
 				treeState.nodeStartTime = treeState.currentTime;
 				motors.motorLeft->setPower(-120);
 				motors.motorRight->setPower(-120);
@@ -171,13 +205,14 @@ private:
 			}
 		}
 		else {
-			if ((treeState.nodeStartTime + duration1 < treeState.currentTime)) {
-				Serial.println("Cliff left turn started.");
+			if ((treeState.nodeStartTime + backMillis < treeState.currentTime) && !turnStarted) {
+				Serial.println(F("Cliff left turning."));
+				turnStarted = true;
 				motors.motorLeft->setPower(120);
 				motors.motorRight->setPower(-120);
 			}
-			if (treeState.nodeStartTime + duration2 < treeState.currentTime) {
-				Serial.println("Cliff left stopping.");
+			if (treeState.nodeStartTime + backMillis + turnMillis < treeState.currentTime) {
+				Serial.println(F("Cliff left stopping."));
 				treeState.currentNode = "";
 				treeState.nodeStartTime = 0;
 				motors.motorLeft->powerOff();
@@ -197,7 +232,7 @@ private:
 	virtual bool run() override {
 		if (!name.equals(treeState.currentNode)) {
 			if (!sensorState.irLeftCliff && sensorState.irRightCliff) {
-				Serial.println("Cliff right detected.");
+				Serial.println(F("Cliff right detected."));
 				treeState.currentNode = name;
 				turnStarted = false;
 				treeState.nodeStartTime = treeState.currentTime;
@@ -208,13 +243,13 @@ private:
 		}
 		else {
 			if ((treeState.nodeStartTime + backMillis < treeState.currentTime) && !turnStarted) {
-				Serial.println("Cliff right turning.");
+				Serial.println(F("Cliff right turning."));
 				turnStarted = true;
 				motors.motorLeft->setPower(-120);
 				motors.motorRight->setPower(120);
 			}
 			if (treeState.nodeStartTime + backMillis + turnMillis < treeState.currentTime) {
-				Serial.println("Cliff right stopping.");
+				Serial.println(F("Cliff right stopping."));
 				treeState.currentNode = "";
 				treeState.nodeStartTime = 0;
 				motors.motorLeft->powerOff();
@@ -227,8 +262,15 @@ private:
 
 class Cruise : public BehaviourTree::Node {
 private:
+	String name = "Cruise";
+	//bool nodeActivated = false;
 	virtual bool run() override {
-		//Serial.println("Cruising.");
+		if (treeState.currentNode.equals("")) {
+			treeState.currentNode = name;
+			Serial.println(F("Cruising."));
+			motors.motorLeft->setPower(120);
+			motors.motorRight->setPower(120);
+		}
 		return true;
 	}
 };

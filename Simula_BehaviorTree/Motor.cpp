@@ -25,7 +25,7 @@ void Motor::setPower(int power) {
 	boolean in2 = LOW;
 
 	if (power > 255) {
-		Serial.print("Power max exceeded.  Power: ");
+		Serial.print(F("Power max exceeded.  Power: "));
 		Serial.println(power);
 	}
 	else {
@@ -68,7 +68,7 @@ void Motor::accelerateToEncoderTarget(int32_t encoderTarget, int powerTarget) {
 			_previousRateCheckMillis = _currentMillis;
 			if (!positionChanged()) {
 				_stallPower += 5;
-				Serial.print("Stall power: ");
+				Serial.print(F("Stall power: "));
 				Serial.println(_stallPower);
 			}
 		}
@@ -99,11 +99,11 @@ void Motor::setEncoderRate(int32_t pulsesPerSecond) {
 			_currentPower -= 1;
 			setPower(_currentPower);
 		}
-		Serial.print("Current power: ");
+		Serial.print(F("Current power: "));
 		Serial.println(_currentPower);
-		Serial.print("measuredPPS: ");
+		Serial.print(F("measuredPPS: "));
 		Serial.println(_pulsesPerInterval * 1000 / _interval);
-		Serial.print("targetPPS: ");
+		Serial.print(F("targetPPS: "));
 		Serial.println(pulsesPerSecond);
 	}
 

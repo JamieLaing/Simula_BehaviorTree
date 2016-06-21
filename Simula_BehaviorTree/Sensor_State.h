@@ -23,6 +23,7 @@ struct SENSOR_STATE {
 	unsigned long loopLastTimeMillis = 0; // Last Time in millis
 	unsigned long loopMinTimeMillis = 0;  // Min Time in millis
 	unsigned long loopMaxTimeMillis = 0;  // Max Time in millis
+	boolean buttonPressed = false;  //Default to pressed condition, stopping tree execution
 
 	//Distance sensors
 	boolean irLeftCliff;		// Left cliff sensor reading
