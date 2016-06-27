@@ -49,6 +49,7 @@ public:
 	const byte pinActEdge1 = 27;
 	const byte pinEdge2 = A1;
 	const byte pinActEdge2 = 31;
+
 	const byte pinPerim1 = A4;
 	const byte pinActPerim1 = 26;
 	const byte pinPerim2 = A5;

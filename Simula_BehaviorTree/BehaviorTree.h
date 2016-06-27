@@ -17,7 +17,7 @@
 #include <initializer_list>
 #include <algorithm>
 
-class BehaviourTree {  // Note:  A proper copy constructor and assignment operator should be defined, since the implicit ones use shallow copies only.
+class Behavior_Tree {  // Note:  A proper copy constructor and assignment operator should be defined, since the implicit ones use shallow copies only.
 private:
 	
 public:
@@ -76,14 +76,14 @@ public:
 	class Root : public Node {
 	private:
 		Node* child;
-		friend class BehaviourTree;
+		friend class Behavior_Tree;
 		void setChild(Node* newChild) { child = newChild; }
 		virtual bool run() override { return child->run(); }
 	};
 private:
 	Root* root;
 public:
-	BehaviourTree() : root(new Root) {}
+	Behavior_Tree() : root(new Root) {}
 	void setRootChild(Node* rootChild) const { root->setChild(rootChild); }
 	bool run() const { return root->run(); }
 };
@@ -95,8 +95,7 @@ struct TREE_STATE {
 	bool nodeTask1Started;
 };
 extern struct TREE_STATE treeState;
-
-class Action : public BehaviourTree::Node {
+class Action : public Behavior_Tree::Node {
 private:
 	String name;
 	int probabilityOfSuccess;
@@ -119,8 +118,7 @@ private:
 		return false;
 	}
 };
-
-class ButtonStop : public BehaviourTree::Node {
+class Button_Stop : public Behavior_Tree::Node {
 private:
 	String name = "Button";
 	bool buttonState = false;
@@ -157,7 +155,7 @@ private:
 	}
 };
 
-class CliffCenter : public BehaviourTree::Node {
+class Cliff_Center : public Behavior_Tree::Node {
 private:
 	String name = "Cliff Center";
 	const long duration = 200;
@@ -185,8 +183,7 @@ private:
 		return false;
 	}
 };
-
-class CliffLeft : public BehaviourTree::Node {
+class Cliff_Left : public Behavior_Tree::Node {
 private:
 	String name = "Cliff Left";
 	const long backMillis = 400;
@@ -222,8 +219,7 @@ private:
 		return false;
 	}
 };
-
-class CliffRight : public BehaviourTree::Node {
+class Cliff_Right : public Behavior_Tree::Node {
 private:
 	String name = "Cliff Right";
 	const long backMillis = 400;
@@ -260,7 +256,100 @@ private:
 	}
 };
 
-class Cruise : public BehaviourTree::Node {
+class Perimeter_Front : public Behavior_Tree::Node {
+private:
+	String name = "Perimeter Front";
+	uint8_t alarmCM = 11;
+	uint8_t warningCM = 20;
+	uint8_t noticeCM = 30;
+	const long interval = 1000;
+	virtual bool run() override {
+		if (!name.equals(treeState.currentNode)) {
+			if (treeState.nodeStartTime + interval < treeState.currentTime) {
+				treeState.nodeStartTime = treeState.currentTime;
+				Serial.print(F("Front: "));
+				Serial.println(sensorState.irFrontCM);
+				if (sensorState.irFrontCM < alarmCM)
+				{
+					Serial.print(F("alarm: "));
+					return true;
+				}
+				else if (sensorState.irFrontCM < warningCM) {
+					Serial.print(F("warning: "));
+					return true;
+				}
+				else if (sensorState.irFrontCM < noticeCM) {
+					Serial.print(F("notice: "));
+				}
+				
+			}
+			return false;
+		}
+	}
+};
+class Perimeter_Left : public Behavior_Tree::Node {
+private:
+	String name = "Perimeter Left";
+	uint8_t alarmCM = 11;
+	uint8_t warningCM = 20;
+	uint8_t noticeCM = 30;
+	const long interval = 1000;
+	virtual bool run() override {
+		if (!name.equals(treeState.currentNode)) {
+			if (treeState.nodeStartTime + interval < treeState.currentTime) {
+				treeState.nodeStartTime = treeState.currentTime;
+
+				Serial.print(F("Left: "));
+				Serial.print(sensorState.irLeftCM);
+				Serial.print(F(", Left front: "));
+				Serial.println(sensorState.irLeftFrontCM);
+
+				if (sensorState.irLeftCM < alarmCM || sensorState.irLeftFrontCM < alarmCM)
+				{
+					Serial.println(F("Left alarm."));
+					return true;
+				}
+				else if (sensorState.irLeftCM < warningCM || sensorState.irLeftFrontCM < alarmCM) {
+					Serial.println(F("Left warning."));
+					return true;
+				}
+				else if (sensorState.irLeftCM < noticeCM || sensorState.irLeftFrontCM < alarmCM) {
+					Serial.println(F("Left notice."));
+				}
+			}
+			return false;
+		}
+	}
+};
+class Perimeter_Right : public Behavior_Tree::Node {
+private:
+	String name = "Perimeter Right";
+	uint8_t alarmCM = 11;
+	uint8_t warningCM = 20;
+	uint8_t noticeCM = 30;
+	const long interval = 1000;
+	virtual bool run() override {
+		if (!name.equals(treeState.currentNode)) {
+			if (treeState.nodeStartTime + interval < treeState.currentTime) {
+				treeState.nodeStartTime = treeState.currentTime;
+
+				if (sensorState.irRightCM < alarmCM)
+				{
+					Serial.println(F("Right alarm."));
+				}
+				else if (sensorState.irRightCM < warningCM) {
+					Serial.println(F("Right warning."));
+				}
+				else if (sensorState.irRightCM < noticeCM) {
+					Serial.println(F("Right notice."));
+				}
+			}
+			return true;
+		}
+	}
+};
+
+class Cruise_Forward : public Behavior_Tree::Node {
 private:
 	String name = "Cruise";
 	//bool nodeActivated = false;

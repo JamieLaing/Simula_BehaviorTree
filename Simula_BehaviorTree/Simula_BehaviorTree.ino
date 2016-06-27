@@ -25,14 +25,17 @@ Motor motorLeft(hardware.enc1A, hardware.enc1B, hardware.mtr1Enable, hardware.mt
 Motor motorRight(hardware.enc2A, hardware.enc2B, hardware.mtr2Enable, hardware.mtr2In1, hardware.mtr2In2);
 Motors motors;
 
-BehaviourTree behaviorTree;
-BehaviourTree::Selector selector[2];
-BehaviourTree::Sequence sequence[2];
-ButtonStop buttonStop;
-CliffCenter cliffCenter;
-CliffLeft cliffLeft;
-CliffRight cliffRight;
-Cruise cruise;
+Behavior_Tree behaviorTree;
+Behavior_Tree::Selector selector[2];
+//BehaviourTree::Sequence sequence[2];
+Button_Stop buttonStop;
+Cliff_Center cliffCenter;
+Cliff_Left cliffLeft;
+Cliff_Right cliffRight;
+Cruise_Forward cruise;
+Perimeter_Front perimeterFront;
+Perimeter_Left perimeterLeft;
+Perimeter_Right perimeterRight;
 
 
 void setup() {
@@ -43,8 +46,10 @@ void setup() {
 	motors.setMotors(&motorLeft, &motorRight);
 	
 	behaviorTree.setRootChild(&selector[0]);
-	selector[0].addChildren({ &buttonStop, &selector[1], &cruise });
-	selector[1].addChildren({ &cliffCenter, &cliffLeft, &cliffRight });
+	selector[0].addChildren({ &buttonStop, &perimeterFront, &perimeterLeft, &perimeterRight });
+
+	//selector[0].addChildren({ &buttonStop, &selector[1], &cruise });
+	//selector[1].addChildren({ &cliffCenter, &cliffLeft, &cliffRight });
 	//wait for sensors to kick in.
 	delay(50);
 	Serial.println(F("Setup complete."));

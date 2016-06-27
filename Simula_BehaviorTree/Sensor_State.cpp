@@ -25,14 +25,19 @@ void Sensors::readIR() {
 	//Serial.println("Reading IR.");
 	IR_BinaryDistance edgeLeft = IR_BinaryDistance(hardware.pinActEdge1, hardware.pinEdge1);
 	IR_BinaryDistance edgeRight = IR_BinaryDistance(hardware.pinActEdge2, hardware.pinEdge2);
-	IR_AnalogDistance perim1IR = IR_AnalogDistance(hardware.pinActPerim1, hardware.pinPerim1);
-	IR_AnalogDistance perim2IR = IR_AnalogDistance(hardware.pinActPerim2, hardware.pinPerim2);
-	IR_AnalogDistance frontIR = IR_AnalogDistance(hardware.pinActFrntIR, hardware.pinFrntIr);
-	IR_AnalogDistance perim3IR = IR_AnalogDistance(hardware.pinActPerim3, hardware.pinPerim3);
-	IR_AnalogDistance perim4IR = IR_AnalogDistance(hardware.pinActPerim4, hardware.pinPerim4);
+	IR_AnalogDistance perimLeft = IR_AnalogDistance(hardware.pinActPerim1, hardware.pinPerim1);
+	IR_AnalogDistance perimLeftFront = IR_AnalogDistance(hardware.pinActPerim2, hardware.pinPerim2);
+	IR_AnalogDistance perimFront = IR_AnalogDistance(hardware.pinActFrntIR, hardware.pinFrntIr);
+	IR_AnalogDistance perimRightFront = IR_AnalogDistance(hardware.pinActPerim3, hardware.pinPerim3);
+	IR_AnalogDistance perimRight = IR_AnalogDistance(hardware.pinActPerim4, hardware.pinPerim4);
 	//PingDistance frontPing = PingDistance(pinTrigger, pinEcho);
 
-	sensorState.irLeftCM = perim1IR.readDistance();
+	sensorState.irLeftCM = perimLeft.readDistance();
+	sensorState.irLeftFrontCM = perimLeftFront.readDistance();
+	sensorState.irFrontCM = perimFront.readDistance();
+	sensorState.irRightFrontCM = perimRightFront.readDistance();
+	sensorState.irRightCM = perimRight.readDistance();
+
 	sensorState.irLeftCliff = !edgeLeft.objectDetected();
 	sensorState.irRightCliff = !edgeRight.objectDetected();
 	lastIrPollSensors = millis();
