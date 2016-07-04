@@ -38,9 +38,13 @@ class Motors {
 public:
 	Motor* motorLeft;
 	Motor* motorRight;
-	void setMotors(Motor* mtrLeft, Motor* mtrRight) {
+	bool motorsActive = false;
+	void initializeMotors(Motor* mtrLeft, Motor* mtrRight) {
 		motorLeft = mtrLeft;
 		motorRight = mtrRight;
+	}
+	bool active() {
+		
 	}
 };
 

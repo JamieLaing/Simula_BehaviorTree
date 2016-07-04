@@ -89,10 +89,11 @@ public:
 };
 
 struct TREE_STATE {
-	String currentNode;
-	unsigned long currentTime;
-	unsigned long nodeStartTime;
-	bool nodeTask1Started;
+	//String currentNode;
+	int frustration;
+	
+	//unsigned long nodeStartTime;
+	//bool nodeTask1Started;
 };
 extern struct TREE_STATE treeState;
 class Action : public Behavior_Tree::Node {
@@ -140,12 +141,9 @@ private:
 					Serial.println(sensorState.buttonPressed);
 					if (sensorState.buttonPressed)
 					{
-						treeState.currentNode = name;
 						motors.motorLeft->powerOff();
 						motors.motorRight->powerOff();
-					}
-					else {
-						treeState.currentNode = "";
+						motors.motorsActive = false;
 					}
 				}
 			}
@@ -157,210 +155,253 @@ private:
 
 class Cliff_Center : public Behavior_Tree::Node {
 private:
-	String name = "Cliff Center";
+	bool nodeActive = false;
 	const long duration = 200;
+	unsigned long currentTime;
+	unsigned long nodeStartTime = 0;
+	
 	virtual bool run() override {
-		if (!name.equals(treeState.currentNode))
-		{
+
+		currentTime = millis();
+
+		if(!nodeActive){
 			if (sensorState.irLeftCliff && sensorState.irRightCliff) {
+				nodeActive = true;
 				Serial.println(F("Cliff center detected."));
-				treeState.currentNode = name;
-				treeState.nodeStartTime = treeState.currentTime;
+				nodeStartTime = currentTime;
 				motors.motorLeft->setPower(-120);
 				motors.motorRight->setPower(-120);
-				return true;
 			}
 		}
-		else {
-			if ((treeState.nodeStartTime + duration < treeState.currentTime) && (!sensorState.irLeftCliff && !sensorState.irRightCliff)) {
+		else
+		{
+			if ((nodeStartTime + duration < currentTime) && (!sensorState.irLeftCliff && !sensorState.irRightCliff)) {
 				Serial.println(F("Cliff center complete."));
-				treeState.currentNode = "";
-				treeState.nodeStartTime = 0;
+				nodeActive = false;
+				nodeStartTime = 0;
 				motors.motorLeft->powerOff();
 				motors.motorRight->powerOff();
+				motors.motorsActive = false;
 			}
 		}
-		return false;
+		return nodeActive;
 	}
 };
 class Cliff_Left : public Behavior_Tree::Node {
 private:
-	String name = "Cliff Left";
-	const long backMillis = 400;
-	const long turnMillis = 400;
-	bool turnStarted;
+	bool nodeActive = false;
+	const long backDuration = 400;
+	const long turnDuration = 400;
+	unsigned long currentTime;
+	unsigned long nodeStartTime = 0;
+	bool turnStarted = false;
+	
 	virtual bool run() override {
-		if (!name.equals(treeState.currentNode)) {
+
+		currentTime = millis();
+
+		if (!nodeActive) {
 			if (sensorState.irLeftCliff && !sensorState.irRightCliff) {
 				Serial.println(F("Cliff left detected."));
-				treeState.currentNode = name;
-				turnStarted = false;
-				treeState.nodeStartTime = treeState.currentTime;
+				nodeStartTime = currentTime;
+				nodeActive = true;
 				motors.motorLeft->setPower(-120);
 				motors.motorRight->setPower(-120);
-				return true;
 			}
 		}
 		else {
-			if ((treeState.nodeStartTime + backMillis < treeState.currentTime) && !turnStarted) {
+			if ((nodeStartTime + backDuration < currentTime) && !turnStarted) {
 				Serial.println(F("Cliff left turning."));
 				turnStarted = true;
 				motors.motorLeft->setPower(180);
 				motors.motorRight->setPower(-180);
 			}
-			if (treeState.nodeStartTime + backMillis + turnMillis < treeState.currentTime) {
+			if (nodeStartTime + backDuration + turnDuration < currentTime) {
 				Serial.println(F("Cliff left stopping."));
-				treeState.currentNode = "";
-				treeState.nodeStartTime = 0;
+				nodeStartTime = 0;
+				motors.motorsActive = false;
 				motors.motorLeft->powerOff();
 				motors.motorRight->powerOff();
+				nodeActive = false;
+				turnStarted = false;
 			}
 		}
-		return false;
+		return nodeActive;
 	}
 };
 class Cliff_Right : public Behavior_Tree::Node {
 private:
-	String name = "Cliff Right";
-	const long backMillis = 400;
-	const long turnMillis = 400;  //durations not additive, subtract duration1 to find execution time
-	bool turnStarted;
+	bool nodeActive = false;
+	const long backDuration = 400;
+	const long turnDuration = 400;
+	unsigned long currentTime;
+	unsigned long nodeStartTime = 0;
+	bool turnStarted = false;
+
 	virtual bool run() override {
-		if (!name.equals(treeState.currentNode)) {
+
+		currentTime = millis();
+
+		if (!nodeActive) {
 			if (!sensorState.irLeftCliff && sensorState.irRightCliff) {
 				Serial.println(F("Cliff right detected."));
-				treeState.currentNode = name;
-				turnStarted = false;
-				treeState.nodeStartTime = treeState.currentTime;
+				nodeStartTime = currentTime;
+				nodeActive = true;
 				motors.motorLeft->setPower(-120);
 				motors.motorRight->setPower(-120);
-				return true;
 			}
 		}
 		else {
-			if ((treeState.nodeStartTime + backMillis < treeState.currentTime) && !turnStarted) {
+			if ((nodeStartTime + backDuration < currentTime) && !turnStarted) {
 				Serial.println(F("Cliff right turning."));
 				turnStarted = true;
 				motors.motorLeft->setPower(-180);
 				motors.motorRight->setPower(180);
 			}
-			if (treeState.nodeStartTime + backMillis + turnMillis < treeState.currentTime) {
+			if (nodeStartTime + backDuration + turnDuration < currentTime) {
 				Serial.println(F("Cliff right stopping."));
-				treeState.currentNode = "";
-				treeState.nodeStartTime = 0;
+				nodeStartTime = 0;
+				motors.motorsActive = false;
 				motors.motorLeft->powerOff();
 				motors.motorRight->powerOff();
+				nodeActive = false;
+				turnStarted = false;
 			}
 		}
-		return false;
+		return nodeActive;
 	}
 };
 
-class Perimeter_Front : public Behavior_Tree::Node {
+class Perimeter_Center : public Behavior_Tree::Node {
 private:
-	String name = "Perimeter Front";
+	bool nodeActive = false;
 	uint8_t alarmCM = 11;
-	uint8_t warningCM = 20;
-	uint8_t noticeCM = 30;
-	const long interval = 1000;
+	const long duration = 200;
+	unsigned long currentTime;
+	unsigned long nodeStartTime = 0;
+	
 	virtual bool run() override {
-		if (!name.equals(treeState.currentNode)) {
-			if (treeState.nodeStartTime + interval < treeState.currentTime) {
-				treeState.nodeStartTime = treeState.currentTime;
-				Serial.print(F("Front: "));
+		currentTime = millis();
+		if (!nodeActive) {
+			if (sensorState.irFrontCM < alarmCM) {
+				nodeStartTime = currentTime;
+				nodeActive = true;
+				Serial.print(F("Permimeter center alarm: "));
 				Serial.println(sensorState.irFrontCM);
-				if (sensorState.irFrontCM < alarmCM)
+				//50% chance of turning either directon
+				long randNum = random(1, 101);
+
+				Serial.print(F("random number: "));
+				Serial.println(randNum);
+				if (randNum <= 50) {
+					Serial.println(F("Turning left."));
+					motors.motorLeft->setPower(-160);
+					motors.motorRight->setPower(160);
+				}
+				else
 				{
-					Serial.print(F("alarm: "));
-					return true;
+					Serial.println(F("Turning right."));
+					motors.motorLeft->setPower(160);
+					motors.motorRight->setPower(-160);
 				}
-				else if (sensorState.irFrontCM < warningCM) {
-					Serial.print(F("warning: "));
-					return true;
-				}
-				else if (sensorState.irFrontCM < noticeCM) {
-					Serial.print(F("notice: "));
-				}
-				
+				return nodeActive;
 			}
-			return false;
 		}
+		else {
+			if ((nodeStartTime + duration < currentTime) && (sensorState.irFrontCM >= alarmCM)) {
+				Serial.println(F("Perimeter center complete."));
+				motors.motorLeft->powerOff();
+				motors.motorRight->powerOff();
+				motors.motorsActive = false;
+				nodeStartTime = 0;
+				nodeActive = false;
+			}
+		}
+		return nodeActive;
 	}
 };
 class Perimeter_Left : public Behavior_Tree::Node {
 private:
-	String name = "Perimeter Left";
+	bool nodeActive = false;
 	uint8_t alarmCM = 11;
-	uint8_t warningCM = 20;
-	uint8_t noticeCM = 30;
-	const long interval = 1000;
+	const long duration = 200;
+	unsigned long currentTime;
+	unsigned long nodeStartTime = 0;
+
 	virtual bool run() override {
-		if (!name.equals(treeState.currentNode)) {
-			if (treeState.nodeStartTime + interval < treeState.currentTime) {
-				treeState.nodeStartTime = treeState.currentTime;
-
-				Serial.print(F("Left: "));
-				Serial.print(sensorState.irLeftCM);
-				Serial.print(F(", Left front: "));
+		currentTime = millis();
+		if (!nodeActive) {
+			if (sensorState.irLeftFrontCM < alarmCM) {
+				nodeStartTime = currentTime;
+				nodeActive = true;
+				Serial.print(F("Permimeter left front alarm: "));
 				Serial.println(sensorState.irLeftFrontCM);
-
-				if (sensorState.irLeftCM < alarmCM || sensorState.irLeftFrontCM < alarmCM)
-				{
-					Serial.println(F("Left alarm."));
-					return true;
-				}
-				else if (sensorState.irLeftCM < warningCM || sensorState.irLeftFrontCM < alarmCM) {
-					Serial.println(F("Left warning."));
-					return true;
-				}
-				else if (sensorState.irLeftCM < noticeCM || sensorState.irLeftFrontCM < alarmCM) {
-					Serial.println(F("Left notice."));
-				}
+				motors.motorLeft->setPower(160);
+				motors.motorRight->setPower(-160);
+				motors.motorsActive = true;
 			}
-			return false;
 		}
+		else {
+			if ((nodeStartTime + duration < currentTime)) {
+				Serial.println(F("Perimeter left front complete."));
+				motors.motorLeft->powerOff();
+				motors.motorRight->powerOff();
+				motors.motorsActive = false;
+				nodeStartTime = 0;
+				nodeActive = false;
+			}
+		}
+		return nodeActive;
 	}
 };
 class Perimeter_Right : public Behavior_Tree::Node {
 private:
-	String name = "Perimeter Right";
+	bool nodeActive = false;
 	uint8_t alarmCM = 11;
-	uint8_t warningCM = 20;
-	uint8_t noticeCM = 30;
-	const long interval = 1000;
-	virtual bool run() override {
-		if (!name.equals(treeState.currentNode)) {
-			if (treeState.nodeStartTime + interval < treeState.currentTime) {
-				treeState.nodeStartTime = treeState.currentTime;
+	const long duration = 200;
+	unsigned long currentTime;
+	unsigned long nodeStartTime = 0;
 
-				if (sensorState.irRightCM < alarmCM)
-				{
-					Serial.println(F("Right alarm."));
-				}
-				else if (sensorState.irRightCM < warningCM) {
-					Serial.println(F("Right warning."));
-				}
-				else if (sensorState.irRightCM < noticeCM) {
-					Serial.println(F("Right notice."));
-				}
+	virtual bool run() override {
+		currentTime = millis();
+		if (!nodeActive) {
+			if (sensorState.irRightFrontCM < alarmCM) {
+				nodeStartTime = currentTime;
+				nodeActive = true;
+				Serial.print(F("Permimeter right front alarm: "));
+				Serial.println(sensorState.irRightFrontCM);
+				motors.motorLeft->setPower(-160);
+				motors.motorRight->setPower(160);
+				motors.motorsActive = true;
 			}
-			return true;
 		}
+		else {
+			if ((nodeStartTime + duration < currentTime)) {
+				Serial.println(F("Perimeter right front complete."));
+				motors.motorLeft->powerOff();
+				motors.motorRight->powerOff();
+				motors.motorsActive = false;
+				nodeStartTime = 0;
+				nodeActive = false;
+			}
+		}
+		return nodeActive;
 	}
 };
 
 class Cruise_Forward : public Behavior_Tree::Node {
 private:
 	String name = "Cruise";
-	//bool nodeActivated = false;
+	bool nodeActive = true;
 	virtual bool run() override {
-		if (treeState.currentNode.equals("")) {
-			treeState.currentNode = name;
+		if (!motors.motorsActive)
+		{
 			Serial.println(F("Cruising."));
+			motors.motorsActive = true;
 			motors.motorLeft->setPower(120);
 			motors.motorRight->setPower(120);
 		}
-		return true;
+		return nodeActive;
 	}
 };
 

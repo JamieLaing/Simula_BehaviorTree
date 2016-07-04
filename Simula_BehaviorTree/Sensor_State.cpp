@@ -16,7 +16,6 @@ void Sensors::init() {
 	digitalWrite(hardware.pinActPerim3, HIGH);
 	digitalWrite(hardware.pinActPerim4, HIGH);
 	digitalWrite(hardware.pinActFrntIR, HIGH);
-
 	lastIrPollSensors = 0;
 	Serial.println(F("Sensors initialized."));
 }
@@ -34,8 +33,12 @@ void Sensors::readIR() {
 
 	sensorState.irLeftCM = perimLeft.readDistance();
 	sensorState.irLeftFrontCM = perimLeftFront.readDistance();
+	//Serial.print("Left front:");
+	//Serial.println(sensorState.irLeftFrontCM);
 	sensorState.irFrontCM = perimFront.readDistance();
 	sensorState.irRightFrontCM = perimRightFront.readDistance();
+	//Serial.print("Right front:");
+	//Serial.println(sensorState.irRightFrontCM);
 	sensorState.irRightCM = perimRight.readDistance();
 
 	sensorState.irLeftCliff = !edgeLeft.objectDetected();

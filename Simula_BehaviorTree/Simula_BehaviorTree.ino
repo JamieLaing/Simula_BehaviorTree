@@ -26,14 +26,14 @@ Motor motorRight(hardware.enc2A, hardware.enc2B, hardware.mtr2Enable, hardware.m
 Motors motors;
 
 Behavior_Tree behaviorTree;
-Behavior_Tree::Selector selector[2];
+Behavior_Tree::Selector selector[3];
 //BehaviourTree::Sequence sequence[2];
 Button_Stop buttonStop;
 Cliff_Center cliffCenter;
 Cliff_Left cliffLeft;
 Cliff_Right cliffRight;
 Cruise_Forward cruise;
-Perimeter_Front perimeterFront;
+Perimeter_Center perimeterCenter;
 Perimeter_Left perimeterLeft;
 Perimeter_Right perimeterRight;
 
@@ -43,13 +43,13 @@ void setup() {
 	randomSeed(analogRead(A3));
 	hardware.init();
 	sensors.init();
-	motors.setMotors(&motorLeft, &motorRight);
+	motors.initializeMotors(&motorLeft, &motorRight);
 	
 	behaviorTree.setRootChild(&selector[0]);
-	selector[0].addChildren({ &buttonStop, &perimeterFront, &perimeterLeft, &perimeterRight });
-
-	//selector[0].addChildren({ &buttonStop, &selector[1], &cruise });
-	//selector[1].addChildren({ &cliffCenter, &cliffLeft, &cliffRight });
+	selector[0].addChildren({ &buttonStop, &selector[1], &selector[2], &cruise });
+	selector[1].addChildren({ &cliffCenter, &cliffLeft, &cliffRight });
+	selector[2].addChildren({ &perimeterCenter, &perimeterLeft, &perimeterRight });
+	
 	//wait for sensors to kick in.
 	delay(50);
 	Serial.println(F("Setup complete."));
@@ -60,7 +60,6 @@ void loop() {
 	if (!sensors.sensorsUpdated()) {
 		sensors.readIR();
 	}
-	treeState.currentTime = millis();
 	
 	if (!behaviorTree.run()) {
 		Serial.println(F("Tree did not complete."));
