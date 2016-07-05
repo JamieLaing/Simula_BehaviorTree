@@ -18,7 +18,7 @@
 #include <StandardCplusplus.h>
 
 struct SENSOR_STATE sensorState;
-struct TREE_STATE treeState;
+struct Emotional_State emotionState;
 Sensors sensors = Sensors();
 Hardware hardware;
 Motor motorLeft(hardware.enc1A, hardware.enc1B, hardware.mtr1Enable, hardware.mtr1In1, hardware.mtr1In2);
@@ -44,6 +44,7 @@ void setup() {
 	hardware.init();
 	sensors.init();
 	motors.initializeMotors(&motorLeft, &motorRight);
+	emotionState.frustration = 0;
 	
 	behaviorTree.setRootChild(&selector[0]);
 	selector[0].addChildren({ &buttonStop, &selector[1], &selector[2], &cruise });

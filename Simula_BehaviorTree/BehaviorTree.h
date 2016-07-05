@@ -88,14 +88,14 @@ public:
 	bool run() const { return root->run(); }
 };
 
-struct TREE_STATE {
+struct Emotional_State {
 	//String currentNode;
 	int frustration;
 	
 	//unsigned long nodeStartTime;
 	//bool nodeTask1Started;
 };
-extern struct TREE_STATE treeState;
+extern struct Emotional_State emotionState;
 class Action : public Behavior_Tree::Node {
 private:
 	String name;
