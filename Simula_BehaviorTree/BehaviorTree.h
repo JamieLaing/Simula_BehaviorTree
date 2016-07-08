@@ -389,6 +389,22 @@ private:
 	}
 };
 
+class Do_Nothing : public Behavior_Tree::Node {
+private:
+	String name = "Cruise";
+	bool nodeActive = true;
+	virtual bool run() override {
+		if (!motors.motorsActive)
+		{
+			Serial.println(F("Cruising."));
+			motors.motorsActive = true;
+			motors.motorLeft->setPower(120);
+			motors.motorRight->setPower(120);
+		}
+		return nodeActive;
+	}
+};
+
 class Cruise_Forward : public Behavior_Tree::Node {
 private:
 	String name = "Cruise";
