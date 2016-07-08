@@ -39,20 +39,18 @@ Perimeter_Center perimeterCenter;
 Perimeter_Left perimeterLeft;
 Perimeter_Right perimeterRight;
 
-
-
 void setup() {
 	Serial.begin(9600);
 	randomSeed(analogRead(A3));
 	hardware.init();
-	sensors.init();
+	//sensors.activate();
 	motors.initializeMotors(&motorLeft, &motorRight);
 	emotionState.frustration = 0;
 	
 	behaviorTree.setRootChild(&selector[0]);
 	selector[0].addChildren({ &buttonStop, &batteryCheck, &selector[1], &selector[2], &cruise });
-	selector[1].addChildren({ &cliffCenter, &cliffLeft, &cliffRight });
-	selector[2].addChildren({ &perimeterCenter, &perimeterLeft, &perimeterRight });
+	selector[1].addChildren({ &cliffCenter, &cliffLeft, &cliffRight, &perimeterCenter, &perimeterLeft, &perimeterRight });
+	//selector[2].addChildren({  });
 	
 	//wait for sensors to kick in.
 	delay(50);

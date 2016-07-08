@@ -58,6 +58,6 @@ void Hardware::setupPins()
 	pinMode(pinBatt, INPUT);
 
 	// Ping Pins
-	pinMode(pinActFrontPing, OUTPUT);
-	pinMode(pinFrontPing, INPUT);
+	pinMode(pinPingTrigger, OUTPUT);
+	pinMode(pinPingEcho, INPUT);
 }
