@@ -62,8 +62,8 @@ public:
 	const byte pinActFrntIR = 29;
 
 	// Ping Sensors
-	const byte pinFrontPing = 6;
-	const byte pinActFrontPing = 7;
+	const byte pinPingEcho = 6;
+	const byte pinPingTrigger = 7;
 
 	// Free Pins with Breakouts
 	// const byte pinSpeaker = 11; // Unused, Breakout to Daughter Board

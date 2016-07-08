@@ -36,7 +36,11 @@ public:
 		template <typename CONTAINER>
 		void addChildren(const CONTAINER& newChildren) { for (Node* child : newChildren) addChild(child); }
 	protected:
-		std::vector<Node*> childrenShuffled() const { std::vector<Node*> temp = children;  std::random_shuffle(temp.begin(), temp.end());  return temp; }
+		std::vector<Node*> childrenShuffled() const { 
+			std::vector<Node*> temp = children;  
+			std::random_shuffle(temp.begin(), temp.end());  
+			return temp; 
+		}
 	};
 
 	class Selector : public CompositeNode {
@@ -139,9 +143,14 @@ private:
 						motors.motorLeft->powerOff();
 						motors.motorRight->powerOff();
 						motors.motorsActive = false;
+						sensors.deactivate();
 					}
 					else {
 						Serial.println(F("Activating behavior tree."));
+						sensors.activate();
+						delay(50);
+						//return true to allow sensors to read before next tree loop.
+						return true;
 					}
 				}
 			}
@@ -153,15 +162,15 @@ private:
 class Battery_Check : public Behavior_Tree::Node {
 private:
 	bool nodeActive = false;
-	unsigned long currentTime;
+	unsigned long now;
 	unsigned long lastCheck = 0;
 	int interval = 10000;
 
 	virtual bool run() override {
-		currentTime = millis();
+		now = millis();
 		if (!nodeActive) {
-			if (currentTime > lastCheck + interval) {
-				lastCheck = currentTime;
+			if ((lastCheck == 0) || (now > lastCheck + interval)) {
+				lastCheck = now;
 				int preVoltage = analogRead(hardware.pinBatt);
 				//Standard voltage divider, with a 0.70 volt constant added to match measurements.
 				float postVoltage = (preVoltage * (5.00 / 1023.00) * 2) + 0.70;
@@ -174,7 +183,7 @@ private:
 		}
 		else
 		{
-			Serial.println(F("Batteries need charging."))
+			Serial.println(F("Batteries low."));
 		}
 		return nodeActive;
 	}
@@ -405,6 +414,55 @@ private:
 		else {
 			if ((nodeStartTime + duration < currentTime)) {
 				Serial.println(F("Perimeter right front complete."));
+				motors.motorLeft->powerOff();
+				motors.motorRight->powerOff();
+				motors.motorsActive = false;
+				nodeStartTime = 0;
+				nodeActive = false;
+			}
+		}
+		return nodeActive;
+	}
+};
+
+class Do_Nothing : public Behavior_Tree::Node {
+private:
+	bool nodeActive = false;
+	uint8_t alarmCM = 11;
+	const long duration = 200;
+	unsigned long currentTime;
+	unsigned long nodeStartTime = 0;
+
+	virtual bool run() override {
+		currentTime = millis();
+		if (!nodeActive) {
+			if (sensorState.irFrontCM < alarmCM) {
+				nodeStartTime = currentTime;
+				nodeActive = true;
+				Serial.print(F("Permimeter center alarm: "));
+				Serial.println(sensorState.irFrontCM);
+				//50% chance of turning either directon
+				long randNum = random(1, 101);
+
+				Serial.print(F("random number: "));
+				Serial.println(randNum);
+				if (randNum <= 50) {
+					Serial.println(F("Turning left."));
+					motors.motorLeft->setPower(-160);
+					motors.motorRight->setPower(160);
+				}
+				else
+				{
+					Serial.println(F("Turning right."));
+					motors.motorLeft->setPower(160);
+					motors.motorRight->setPower(-160);
+				}
+				return nodeActive;
+			}
+		}
+		else {
+			if ((nodeStartTime + duration < currentTime) && (sensorState.irFrontCM >= alarmCM)) {
+				Serial.println(F("Perimeter center complete."));
 				motors.motorLeft->powerOff();
 				motors.motorRight->powerOff();
 				motors.motorsActive = false;
