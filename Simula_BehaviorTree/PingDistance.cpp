@@ -22,7 +22,7 @@ float PingDistance::readDistance()
 	digitalWrite(_activationPin, LOW);
 
 	//response
-	duration = pulseIn(_readingPin, HIGH, 6300); //Timeout for 1 meter of echo time
+	duration = pulseIn(_readingPin, HIGH);
 
 	//convert sound speed to distance, 63 microseconds per CM
 	cm = duration / 63;

@@ -42,8 +42,7 @@ class Sensors {
 protected:
 	unsigned long lastIrPollSensors;
 public:
-	void activate();
-	void deactivate();
+	void init();
 	void readIR();
 	boolean sensorsUpdated();
 };
