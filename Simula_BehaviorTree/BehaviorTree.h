@@ -36,7 +36,11 @@ public:
 		template <typename CONTAINER>
 		void addChildren(const CONTAINER& newChildren) { for (Node* child : newChildren) addChild(child); }
 	protected:
-		std::vector<Node*> childrenShuffled() const { std::vector<Node*> temp = children;  std::random_shuffle(temp.begin(), temp.end());  return temp; }
+		std::vector<Node*> childrenShuffled() const { 
+			std::vector<Node*> temp = children;  
+			std::random_shuffle(temp.begin(), temp.end());  
+			return temp; 
+		}
 	};
 
 	class Selector : public CompositeNode {
@@ -139,9 +143,14 @@ private:
 						motors.motorLeft->powerOff();
 						motors.motorRight->powerOff();
 						motors.motorsActive = false;
+						sensors.deactivate();
 					}
 					else {
 						Serial.println(F("Activating behavior tree."));
+						sensors.activate();
+						delay(50);
+						//return true to allow sensors to read before next tree loop.
+						return true;
 					}
 				}
 			}
@@ -153,15 +162,15 @@ private:
 class Battery_Check : public Behavior_Tree::Node {
 private:
 	bool nodeActive = false;
-	unsigned long currentTime;
+	unsigned long now;
 	unsigned long lastCheck = 0;
 	int interval = 10000;
 
 	virtual bool run() override {
-		currentTime = millis();
+		now = millis();
 		if (!nodeActive) {
-			if (currentTime > lastCheck + interval) {
-				lastCheck = currentTime;
+			if ((lastCheck == 0) || (now > lastCheck + interval)) {
+				lastCheck = now;
 				int preVoltage = analogRead(hardware.pinBatt);
 				//Standard voltage divider, with a 0.70 volt constant added to match measurements.
 				float postVoltage = (preVoltage * (5.00 / 1023.00) * 2) + 0.70;
@@ -174,7 +183,7 @@ private:
 		}
 		else
 		{
-			Serial.println(F("Batteries need charging."))
+			Serial.println(F("Batteries low."));
 		}
 		return nodeActive;
 	}
