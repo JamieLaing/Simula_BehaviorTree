@@ -27,8 +27,10 @@ Motors motors;
 
 Behavior_Tree behaviorTree;
 Behavior_Tree::Selector selector[3];
+//Behavior_Tree::RandomSelector random[2];
 //BehaviourTree::Sequence sequence[2];
 Button_Stop buttonStop;
+Battery_Check batteryCheck;
 Cliff_Center cliffCenter;
 Cliff_Left cliffLeft;
 Cliff_Right cliffRight;
@@ -36,6 +38,7 @@ Cruise_Forward cruise;
 Perimeter_Center perimeterCenter;
 Perimeter_Left perimeterLeft;
 Perimeter_Right perimeterRight;
+
 
 
 void setup() {
@@ -47,7 +50,7 @@ void setup() {
 	emotionState.frustration = 0;
 	
 	behaviorTree.setRootChild(&selector[0]);
-	selector[0].addChildren({ &buttonStop, &selector[1], &selector[2], &cruise });
+	selector[0].addChildren({ &buttonStop, &batteryCheck, &selector[1], &selector[2], &cruise });
 	selector[1].addChildren({ &cliffCenter, &cliffLeft, &cliffRight });
 	selector[2].addChildren({ &perimeterCenter, &perimeterLeft, &perimeterRight });
 	

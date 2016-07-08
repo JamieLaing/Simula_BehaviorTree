@@ -24,7 +24,6 @@ public:
 	class Node {  // This class represents each node in the behaviour tree.
 	public:
 		virtual bool run() = 0;
-
 	};
 
 	class CompositeNode : public Node {  //  This type of Node follows the Composite Pattern, containing a list of other Nodes.
@@ -89,11 +88,8 @@ public:
 };
 
 struct Emotional_State {
-	//String currentNode;
 	int frustration;
-	
-	//unsigned long nodeStartTime;
-	//bool nodeTask1Started;
+	int confidence;
 };
 extern struct Emotional_State emotionState;
 class Action : public Behavior_Tree::Node {
@@ -126,7 +122,7 @@ private:
 	int lastButtonState = HIGH;
 	unsigned long debounceTime;
 	const long debounceDelay = 10;
-	virtual bool run() override{
+	virtual bool run() override {
 		int reading = digitalRead(hardware.pinButton);
 		if (reading != lastButtonState) {
 			debounceTime = millis();
@@ -137,19 +133,50 @@ private:
 				buttonState = reading;
 				if (buttonState == HIGH) {
 					sensorState.buttonPressed = !sensorState.buttonPressed;
-					Serial.print(F("Button toggle: "));
-					Serial.println(sensorState.buttonPressed);
 					if (sensorState.buttonPressed)
 					{
+						Serial.println(F("Autonomous mode off."));
 						motors.motorLeft->powerOff();
 						motors.motorRight->powerOff();
 						motors.motorsActive = false;
+					}
+					else {
+						Serial.println(F("Activating behavior tree."));
 					}
 				}
 			}
 		}
 		lastButtonState = reading;
 		return sensorState.buttonPressed;
+	}
+};
+class Battery_Check : public Behavior_Tree::Node {
+private:
+	bool nodeActive = false;
+	unsigned long currentTime;
+	unsigned long lastCheck = 0;
+	int interval = 10000;
+
+	virtual bool run() override {
+		currentTime = millis();
+		if (!nodeActive) {
+			if (currentTime > lastCheck + interval) {
+				lastCheck = currentTime;
+				int preVoltage = analogRead(hardware.pinBatt);
+				//Standard voltage divider, with a 0.70 volt constant added to match measurements.
+				float postVoltage = (preVoltage * (5.00 / 1023.00) * 2) + 0.70;
+				Serial.print(F("Battery voltage: "));
+				Serial.println(postVoltage);
+				if (postVoltage < 6.5) {
+					nodeActive = true;
+				}
+			}
+		}
+		else
+		{
+			Serial.println(F("Batteries need charging."))
+		}
+		return nodeActive;
 	}
 };
 
@@ -414,8 +441,8 @@ private:
 		{
 			Serial.println(F("Cruising."));
 			motors.motorsActive = true;
-			motors.motorLeft->setPower(120);
-			motors.motorRight->setPower(120);
+			//motors.motorLeft->setPower(120);
+			//motors.motorRight->setPower(120);
 		}
 		return nodeActive;
 	}

@@ -54,6 +54,9 @@ void Hardware::setupPins()
 	pinMode(pinPerim3, INPUT);
 	pinMode(pinPerim4, INPUT);
 
+	//Battery pin
+	pinMode(pinBatt, INPUT);
+
 	// Ping Pins
 	pinMode(pinActFrontPing, OUTPUT);
 	pinMode(pinFrontPing, INPUT);
