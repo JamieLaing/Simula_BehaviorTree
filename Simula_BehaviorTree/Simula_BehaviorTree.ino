@@ -38,6 +38,7 @@ Cruise_Forward cruise;
 Perimeter_Center perimeterCenter;
 Perimeter_Left perimeterLeft;
 Perimeter_Right perimeterRight;
+Random_Action randomAction;
 
 void setup() {
 	Serial.begin(9600);
@@ -48,7 +49,7 @@ void setup() {
 	emotionState.frustration = 0;
 	
 	behaviorTree.setRootChild(&selector[0]);
-	selector[0].addChildren({ &buttonStop, &batteryCheck, &selector[1], &selector[2], &cruise });
+	selector[0].addChildren({ &buttonStop, &batteryCheck, &selector[1], &randomAction, &cruise });
 	selector[1].addChildren({ &cliffCenter, &cliffLeft, &cliffRight, &perimeterCenter, &perimeterLeft, &perimeterRight });
 	//selector[2].addChildren({  });
 	

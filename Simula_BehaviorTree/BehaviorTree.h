@@ -425,49 +425,41 @@ private:
 	}
 };
 
-class Do_Nothing : public Behavior_Tree::Node {
+class Random_Action : public Behavior_Tree::Node {
+	//This function is checked every checkInterval to see if it should run.
+	//The interval is randomized, as is the duration of the time doing nothing.
 private:
 	bool nodeActive = false;
-	uint8_t alarmCM = 11;
-	const long duration = 200;
+	long checkInterval = 10000;
+	long duration = 2000;
 	unsigned long currentTime;
+	unsigned long lastCheck = 0;
 	unsigned long nodeStartTime = 0;
+	int percentChance = 10;
 
 	virtual bool run() override {
 		currentTime = millis();
-		if (!nodeActive) {
-			if (sensorState.irFrontCM < alarmCM) {
-				nodeStartTime = currentTime;
-				nodeActive = true;
-				Serial.print(F("Permimeter center alarm: "));
-				Serial.println(sensorState.irFrontCM);
-				//50% chance of turning either directon
-				long randNum = random(1, 101);
-
-				Serial.print(F("random number: "));
-				Serial.println(randNum);
-				if (randNum <= 50) {
-					Serial.println(F("Turning left."));
-					motors.motorLeft->setPower(-160);
-					motors.motorRight->setPower(160);
-				}
-				else
-				{
-					Serial.println(F("Turning right."));
-					motors.motorLeft->setPower(160);
-					motors.motorRight->setPower(-160);
-				}
-				return nodeActive;
-			}
+		if (lastCheck == 0) {
+			lastCheck = currentTime;
 		}
-		else {
-			if ((nodeStartTime + duration < currentTime) && (sensorState.irFrontCM >= alarmCM)) {
-				Serial.println(F("Perimeter center complete."));
+		if (!nodeActive && (lastCheck + checkInterval < currentTime)) {
+			long randNum = random(1, 101);
+			Serial.print(F("random number: "));
+			Serial.println(randNum);
+			if (randNum <= percentChance) {
+				nodeActive = true;
+				nodeStartTime = currentTime;
+				Serial.println(F("Doing nothing."));
 				motors.motorLeft->powerOff();
 				motors.motorRight->powerOff();
 				motors.motorsActive = false;
-				nodeStartTime = 0;
+			}
+		}
+		else {
+			if ((nodeStartTime + duration < currentTime)) {
+				Serial.println(F("Done doing nothing."));
 				nodeActive = false;
+				nodeStartTime = 0;
 			}
 		}
 		return nodeActive;
