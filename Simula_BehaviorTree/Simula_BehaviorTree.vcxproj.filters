@@ -45,6 +45,12 @@
     <ClInclude Include="Hardware.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CRC_Lights.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CRC_PCA9635.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DistanceSensor.cpp">
@@ -66,6 +72,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Hardware.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CRC_Lights.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CRC_PCA9635.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

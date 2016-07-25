@@ -92,8 +92,12 @@ public:
 };
 
 struct Emotional_State {
-	int frustration;
-	int confidence;
+	int fear;
+	int sadness;
+	int surprise;
+	int happiness;
+	int anger;
+	int pain;
 };
 extern struct Emotional_State emotionState;
 class Action : public Behavior_Tree::Node {
@@ -176,7 +180,7 @@ private:
 				float postVoltage = (preVoltage * (5.00 / 1023.00) * 2) + 0.70;
 				Serial.print(F("Battery voltage: "));
 				Serial.println(postVoltage);
-				if (postVoltage < 6.5) {
+				if (postVoltage < hardware.lowBatteryVoltage) {
 					nodeActive = true;
 				}
 			}
@@ -319,7 +323,7 @@ private:
 	virtual bool run() override {
 		currentTime = millis();
 		if (!nodeActive) {
-			if (sensorState.irFrontCM < alarmCM) {
+			if (sensorState.irFrontCM < alarmCM && sensorState.irFrontCM > hardware.irMinimumCM) {
 				nodeStartTime = currentTime;
 				nodeActive = true;
 				Serial.print(F("Permimeter center alarm: "));
@@ -367,7 +371,7 @@ private:
 	virtual bool run() override {
 		currentTime = millis();
 		if (!nodeActive) {
-			if (sensorState.irLeftFrontCM < alarmCM) {
+			if (sensorState.irLeftFrontCM < alarmCM && sensorState.irLeftFrontCM > hardware.irMinimumCM) {
 				nodeStartTime = currentTime;
 				nodeActive = true;
 				Serial.print(F("Permimeter left front alarm: "));
@@ -378,7 +382,7 @@ private:
 			}
 		}
 		else {
-			if ((nodeStartTime + duration < currentTime)) {
+			if ((nodeStartTime + duration < currentTime) && sensorState.irLeftFrontCM >= alarmCM) {
 				Serial.println(F("Perimeter left front complete."));
 				motors.motorLeft->powerOff();
 				motors.motorRight->powerOff();
@@ -401,7 +405,7 @@ private:
 	virtual bool run() override {
 		currentTime = millis();
 		if (!nodeActive) {
-			if (sensorState.irRightFrontCM < alarmCM) {
+			if (sensorState.irRightFrontCM < alarmCM && sensorState.irRightFrontCM > hardware.irMinimumCM) {
 				nodeStartTime = currentTime;
 				nodeActive = true;
 				Serial.print(F("Permimeter right front alarm: "));
@@ -412,7 +416,7 @@ private:
 			}
 		}
 		else {
-			if ((nodeStartTime + duration < currentTime)) {
+			if ((nodeStartTime + duration < currentTime) && sensorState.irRightFrontCM >= alarmCM) {
 				Serial.println(F("Perimeter right front complete."));
 				motors.motorLeft->powerOff();
 				motors.motorRight->powerOff();
@@ -430,8 +434,8 @@ class Random_Action : public Behavior_Tree::Node {
 	//The interval is randomized, as is the duration of the time doing nothing.
 private:
 	bool nodeActive = false;
-	long checkInterval = 10000;
-	long duration = 2000;
+	long checkInterval = 5000;
+	long duration = 4000;
 	unsigned long currentTime;
 	unsigned long lastCheck = 0;
 	unsigned long nodeStartTime = 0;
@@ -442,22 +446,25 @@ private:
 		if (lastCheck == 0) {
 			lastCheck = currentTime;
 		}
-		if (!nodeActive && (lastCheck + checkInterval < currentTime)) {
-			long randNum = random(1, 101);
-			Serial.print(F("random number: "));
-			Serial.println(randNum);
-			if (randNum <= percentChance) {
-				nodeActive = true;
-				nodeStartTime = currentTime;
-				Serial.println(F("Doing nothing."));
-				motors.motorLeft->powerOff();
-				motors.motorRight->powerOff();
-				motors.motorsActive = false;
+		if (!nodeActive){
+			if (lastCheck + checkInterval < currentTime) {
+				lastCheck = currentTime;
+				long randNum = random(1, 101);
+				Serial.print(F("random number: "));
+				Serial.println(randNum);
+				if (randNum <= percentChance) {
+					nodeActive = true;
+					nodeStartTime = currentTime;
+					Serial.println(F("Doing nothing."));
+					motors.motorLeft->powerOff();
+					motors.motorRight->powerOff();
+					motors.motorsActive = false;
+				}
 			}
 		}
 		else {
-			if ((nodeStartTime + duration < currentTime)) {
-				Serial.println(F("Done doing nothing."));
+			if (nodeStartTime + duration < currentTime) {
+				Serial.println(F("Doing nothing finished."));
 				nodeActive = false;
 				nodeStartTime = 0;
 			}

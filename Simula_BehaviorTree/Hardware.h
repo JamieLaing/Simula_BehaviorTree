@@ -35,9 +35,9 @@ public:
 	const byte vs1053_reset = 9;
 	const byte vs1053_cs = 10;   // SPI CS for VS 1053 Control Port
 	const byte vs1053_dreq = 12; // SPI CS for VS 1053 Data Port
-	const byte ampGain0 = 37;
-	const byte ampGain1 = 40;
-	const byte ampEnable = 41;
+	const byte pinAmpGain0 = 37;
+	const byte pinAmpGain1 = 40;
+	const byte pinAmpEnable = 41;
 
 	const byte sdcard_cs = 4; // SPI Chip Select for SD Card
 
@@ -61,6 +61,9 @@ public:
 	const byte pinFrntIr = A8;
 	const byte pinActFrntIR = 29;
 
+	const byte irMinimumCM = 3;
+	const float lowBatteryVoltage = 6.3;
+
 	// Ping Sensors
 	const byte pinPingEcho = 6;
 	const byte pinPingTrigger = 7;
@@ -73,11 +76,19 @@ public:
 	// const byte SPI_mosi = 51; // Reserved - Standard Arduino SPI
 	// const byte SPI_clk = 52;  // Reserved - Standard Arduino SPI
 
+	const uint8_t i2cPca9635Left = 0x00;
+	const uint8_t i2cPca9635Right = 0x01;
+
 #endif
 
 	void init();
+	void ampSetVolume(int volumeLevel);
+	void ampEnable();
+	void ampDisable();
 private:
 	void setupPins();
+	void setupI2C();
+	void setupSPI();
 };
 
 extern Hardware hardware;
