@@ -92,26 +92,8 @@ void setup() {
 		delay(500);
 	}*/
 
-	delay(500);
-	for (int i = 0; i < 10; i++) {
-		crcLights.setLed(i, 0, 0, 0);
-	}
-	delay(500);
+	crcLights.showRunway();
 	
-	for (int k = 0; k < 20; k++) {
-		for (int j = 10; j > 4; j--) {
-			for (int i = 0; i < 10; i++) {
-				crcLights.setLed(i, 0, 0, 0);
-			}
-			crcLights.setLed(j, 255, 0, 0);
-			crcLights.setLed(j - 5, 255, 0, 0);
-			delay(10);
-		}
-	}
-	
-	for (int i = 0; i < 10; i++) {
-		crcLights.setLed(i, 0, 0, 0);
-	}
 
 
 	//sensors.activate();

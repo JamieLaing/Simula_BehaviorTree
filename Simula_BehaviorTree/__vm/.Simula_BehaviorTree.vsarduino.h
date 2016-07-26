@@ -50,24 +50,5 @@ extern "C" void __cxa_pure_virtual() {;}
 #define F(string_literal) ((const PROGMEM char *)(string_literal))
 #undef PSTR
 #define PSTR(string_literal) ((const PROGMEM char *)(string_literal))")
-#include <Simula_BehaviorTree.ino>
-#include <BehaviorTree.h>
-#include <CRC_Lights.cpp>
-#include <CRC_Lights.h>
-#include <CRC_PCA9635.cpp>
-#include <CRC_PCA9635.h>
-#include <DistanceSensor.cpp>
-#include <DistanceSensor.h>
-#include <Hardware.cpp>
-#include <Hardware.h>
-#include <IR_AnalogDistance.cpp>
-#include <IR_AnalogDistance.h>
-#include <IR_BinaryDistance.cpp>
-#include <IR_BinaryDistance.h>
-#include <Motor.cpp>
-#include <Motor.h>
-#include <PingDistance.cpp>
-#include <PingDistance.h>
-#include <Sensor_State.cpp>
-#include <Sensor_State.h>
+#include "Simula_BehaviorTree.ino"
 #endif
