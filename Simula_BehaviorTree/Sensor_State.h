@@ -9,6 +9,7 @@
 	#include "WProgram.h"
 #endif
 
+#include <Adafruit_LSM9DS0.h>
 
 
 struct UNIT_STATE {
@@ -34,6 +35,9 @@ struct UNIT_STATE {
 	uint8_t irRightFrontCM;		// Right front IR CM reading
 	uint8_t irRightCM;			// Right IR CM reading
 	uint8_t pingFrontCM;		// Front Ping CM Reading
+
+	//LSM readings
+
 };
 
 extern struct UNIT_STATE unitState;
@@ -46,6 +50,7 @@ public:
 	void deactivate();
 	void readIR();
 	boolean sensorsUpdated();
+	Adafruit_LSM9DS0 lsm;
 };
 
 extern Sensors sensors;

@@ -19,6 +19,8 @@
 #include <SD.h>
 #include <Wire.h>
 #include <StandardCplusplus.h>
+#include <Adafruit_LSM9DS0.h>	//Download from https://github.com/adafruit/Adafruit_LSM9DS0_Library/archive/master.zip
+#include <Adafruit_Sensor.h>	//Download from https://github.com/adafruit/Adafruit_Sensor/archive/master.zip
 
 Sd2Card card;
 SdVolume volume;
@@ -34,6 +36,7 @@ Motor motorRight(hardware.enc2A, hardware.enc2B, hardware.mtr2Enable, hardware.m
 Motors motors;
 CRC_LightsClass crcLights(hardware.i2cPca9635Left, hardware.i2cPca9635Right);
 CRC_AudioManagerClass crcAudio;
+//Adafruit_LSM9DS0 lsm = Adafruit_LSM9DS0();
 
 
 Behavior_Tree behaviorTree;
@@ -52,8 +55,10 @@ Perimeter_Right perimeterRight;
 Random_Action randomAction;
 
 void setup() {
-	Serial.begin(9600);
+	Serial.begin(115200);
 	Serial.println(F("Booting."));
+
+	sensors.lsm = Adafruit_LSM9DS0();
 	
 	hardware.init();
 	crcLights.init();
@@ -64,9 +69,33 @@ void setup() {
 	else {
 		Serial.println(F("VS1053 not detected."));
 	}
-	crcLights.showRunway();
+	if (!sensors.lsm.begin())
+	{
+		Serial.println("Oops ... unable to initialize the LSM9DS0. Check your wiring!");
+	}
+	else
+	{
+		// 1.) Set the accelerometer range
+		sensors.lsm.setupAccel(sensors.lsm.LSM9DS0_ACCELRANGE_2G);
+		//lsm.setupAccel(lsm.LSM9DS0_ACCELRANGE_4G);
+		//lsm.setupAccel(lsm.LSM9DS0_ACCELRANGE_6G);
+		//lsm.setupAccel(lsm.LSM9DS0_ACCELRANGE_8G);
+		//lsm.setupAccel(lsm.LSM9DS0_ACCELRANGE_16G);
 
-	//sensors.activate();
+		// 2.) Set the magnetometer sensitivity
+		sensors.lsm.setupMag(sensors.lsm.LSM9DS0_MAGGAIN_2GAUSS);
+		//lsm.setupMag(lsm.LSM9DS0_MAGGAIN_4GAUSS);
+		//lsm.setupMag(lsm.LSM9DS0_MAGGAIN_8GAUSS);
+		//lsm.setupMag(lsm.LSM9DS0_MAGGAIN_12GAUSS);
+
+		// 3.) Setup the gyroscope
+		sensors.lsm.setupGyro(sensors.lsm.LSM9DS0_GYROSCALE_245DPS);
+		//lsm.setupGyro(lsm.LSM9DS0_GYROSCALE_500DPS);
+		//lsm.setupGyro(lsm.LSM9DS0_GYROSCALE_2000DPS);
+		Serial.println(F("LSM9DSO configured."));
+	}
+
+	crcLights.showRunway();
 	motors.initializeMotors(&motorLeft, &motorRight);
 	
 	behaviorTree.setRootChild(&selector[0]);
@@ -75,16 +104,16 @@ void setup() {
 	//selector[2].addChildren({  });
 
 	//MP3 Player & Amplifier
-	hardware.ampSetVolume(1); //0 = low, 3 = high
-	crcAudio.setVolume(10, 10); //0 = loudest, 60 = softest?  (not sure what softest value is)
+	//hardware.ampSetVolume(1); //0 = low, 3 = high
+	crcAudio.setAmpGain(1);
+	crcAudio.setVolume(10, 10); 
 	if (!SD.begin(hardware.sdcard_cs)) {
 		Serial.println(F("SD card init failure."));
 	}
 	else
 	{
 		Serial.println(F("SD card initialized."));
-		hardware.ampEnable();
-		crcAudio.startAudioFile("effects/pwrup_05.mp3");
+		crcAudio.startAudioFile("effects/pwrup_02.mp3");
 	}
 	
 	//wait for sensors to kick in.
@@ -94,7 +123,20 @@ void setup() {
 
 
 void loop() {
+
 	crcAudio.updateAudioState();
+	sensors.lsm.read();
+	/*Serial.print("Accel X: "); Serial.print((int)sensors.lsm.accelData.x); Serial.print(" ");
+	Serial.print("Y: "); Serial.print((int)sensors.lsm.accelData.y);       Serial.print(" ");
+	Serial.print("Z: "); Serial.println((int)sensors.lsm.accelData.z);     Serial.print(" ");
+	Serial.print("Mag X: "); Serial.print((int)sensors.lsm.magData.x);     Serial.print(" ");
+	Serial.print("Y: "); Serial.print((int)sensors.lsm.magData.y);         Serial.print(" ");
+	Serial.print("Z: "); Serial.println((int)sensors.lsm.magData.z);       Serial.print(" ");
+	Serial.print("Gyro X: "); Serial.print((int)sensors.lsm.gyroData.x);   Serial.print(" ");
+	Serial.print("Y: "); Serial.print((int)sensors.lsm.gyroData.y);        Serial.print(" ");
+	Serial.print("Z: "); Serial.println((int)sensors.lsm.gyroData.z);      Serial.print(" ");
+	Serial.print("Temp: "); Serial.print((int)sensors.lsm.temperature);    Serial.println(" ");*/
+	//delay(500);
 
 	if (!sensors.sensorsUpdated()) {
 		sensors.readIR();

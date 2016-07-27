@@ -95,9 +95,6 @@ public:
 	void init();
 	void startScanStatus(unsigned long startTime);
 	void endScanStatus(unsigned long startTime);
-	void ampSetVolume(int volumeLevel);
-	void ampEnable();
-	void ampDisable();
 private:
 	void setupPins();
 	void setupI2C();

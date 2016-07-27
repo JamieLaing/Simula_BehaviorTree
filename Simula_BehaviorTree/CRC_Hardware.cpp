@@ -76,43 +76,6 @@ void CRC_HardwareClass::setupPins()
 	pinMode(pinPingTrigger, OUTPUT);
 	pinMode(pinPingEcho, INPUT);
 }
-void CRC_HardwareClass::ampSetVolume(int volumeLevel) {
-	//0 = lowest volume, 3 = highest
-	pinMode(hardware.pinAmpGain0, OUTPUT);
-	pinMode(hardware.pinAmpGain1, OUTPUT);
-	pinMode(hardware.pinAmpEnable, OUTPUT);
-
-
-	switch (volumeLevel)
-	{
-	case 0:
-		digitalWrite(hardware.pinAmpGain0, LOW);
-		digitalWrite(hardware.pinAmpGain1, LOW);
-		break;
-	case 1:
-		digitalWrite(hardware.pinAmpGain0, HIGH);
-		digitalWrite(hardware.pinAmpGain1, LOW);
-		break;
-	case 2:
-		digitalWrite(hardware.pinAmpGain0, LOW);
-		digitalWrite(hardware.pinAmpGain1, HIGH);
-		break;
-	case 3:
-		digitalWrite(hardware.pinAmpGain0, HIGH);
-		digitalWrite(hardware.pinAmpGain1, HIGH);
-		break;
-	default:
-		digitalWrite(hardware.pinAmpGain0, LOW);
-		digitalWrite(hardware.pinAmpGain1, LOW);
-		//default to lowest volume.
-	}
-}
-void CRC_HardwareClass::ampEnable() {
-	digitalWrite(pinAmpEnable, HIGH);
-}
-void CRC_HardwareClass::ampDisable() {
-	digitalWrite(pinAmpEnable, LOW);
-}
 void CRC_HardwareClass::setupI2C()
 {
 	Wire.begin();

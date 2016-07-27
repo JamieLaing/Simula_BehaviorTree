@@ -177,8 +177,8 @@ boolean CRC_AudioManagerClass::startAudioFile(const char * fileName)
 
 	_isPlayingAudio = true;
 
-	digitalWrite(hardware.pinAmpEnable, HIGH);
-	_ampEnabled = true;
+	enableAmp();
+
 	// wait till its ready for data
 	while (!readyForAudioData());
 
@@ -261,7 +261,16 @@ void CRC_AudioManagerClass::playAudioData(uint8_t *buffer, uint8_t buffsiz) {
 	digitalWrite(hardware.vs1053_dcs, HIGH);
 	SPI.endTransaction();
 }
+void CRC_AudioManagerClass::enableAmp() {
+	digitalWrite(hardware.pinAmpEnable, HIGH);
+	_ampEnabled = true;
+}
+void CRC_AudioManagerClass::disableAmp() {
+	digitalWrite(hardware.pinAmpEnable, LOW);
+	_ampEnabled = false;
+}
 
+// 0 = lowest volume, 3 = highest volume
 void CRC_AudioManagerClass::setAmpGain(uint8_t level)
 {
 	switch (level)
@@ -282,9 +291,14 @@ void CRC_AudioManagerClass::setAmpGain(uint8_t level)
 		digitalWrite(hardware.pinAmpGain0, HIGH);
 		digitalWrite(hardware.pinAmpGain1, HIGH);
 		break;
+	default:
+		digitalWrite(hardware.pinAmpGain0, LOW);
+		digitalWrite(hardware.pinAmpGain1, LOW);
+		//default to lowest volume.
 	}
 }
 
+//0 = loudest, 60 = softest?  (not certain of lowest volume value)
 void CRC_AudioManagerClass::setVolume(uint8_t left, uint8_t right)
 {
 	uint16_t v;
@@ -301,8 +315,7 @@ void CRC_AudioManagerClass::updateAudioState()
 
 	if (!_isPlayingAudio && _ampEnabled && ((millis() - _lastAudioFeedTime) > 2000))
 	{
-		digitalWrite(hardware.pinAmpEnable, LOW);
-		_ampEnabled = false;
+		disableAmp();
 	}
 }
 

@@ -56,6 +56,8 @@ public:
 	void stopAudio();
 	boolean startAudioFile(const char * fileName);
 	boolean playFullAudioFile(const char *trackname);
+	void enableAmp();
+	void disableAmp();
 	void setAmpGain(uint8_t level);
 	void setVolume(uint8_t left, uint8_t right);
 

@@ -6,7 +6,7 @@
 #include "IR_BinaryDistance.h"
 #include "IR_AnalogDistance.h"
 #include "PingDistance.h"
-#include "Hardware.h"
+#include "CRC_Hardware.h"
 
 void Sensors::activate() {
 	//Activate sensors
