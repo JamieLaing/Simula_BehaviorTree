@@ -4,10 +4,10 @@
  Author:	jlaing
 */
 
+#include "CRC_AudioManager.h"
 #include "CRC_PCA9635.h"
 #include "CRC_Lights.h"
-#include "Hardware.h"
-#include <adafruit_vs1053.h>	//Download from https://github.com/adafruit/Adafruit_VS1053_Library/archive/master.zip
+#include "CRC_Hardware.h"
 #include "Sensor_State.h"
 #include "BehaviorTree.h"
 #include "PingDistance.h"
@@ -24,16 +24,16 @@ Sd2Card card;
 SdVolume volume;
 SdFile root;
 File file;
-Adafruit_VS1053_FilePlayer musicPlayer = Adafruit_VS1053_FilePlayer(hardware.vs1053_reset, hardware.vs1053_cs, hardware.vs1053_dcs, hardware.vs1053_dreq, hardware.sdcard_cs);
 
-struct SENSOR_STATE sensorState;
+struct UNIT_STATE unitState;
 struct Emotional_State emotionState;
 Sensors sensors = Sensors();
-Hardware hardware;
+CRC_HardwareClass hardware;
 Motor motorLeft(hardware.enc1A, hardware.enc1B, hardware.mtr1Enable, hardware.mtr1In1, hardware.mtr1In2);
 Motor motorRight(hardware.enc2A, hardware.enc2B, hardware.mtr2Enable, hardware.mtr2In1, hardware.mtr2In2);
 Motors motors;
 CRC_LightsClass crcLights(hardware.i2cPca9635Left, hardware.i2cPca9635Right);
+CRC_AudioManagerClass crcAudio;
 
 
 Behavior_Tree behaviorTree;
@@ -53,48 +53,18 @@ Random_Action randomAction;
 
 void setup() {
 	Serial.begin(9600);
-	Serial.println("Booting.");
+	Serial.println(F("Booting."));
 	
 	hardware.init();
-	
-	if (!musicPlayer.begin()) { // initialise the music player
-		Serial.println(F("Couldn't find VS1053, do you have the right pins defined?"));
-	}
-	else
-	{
-		Serial.println(F("VS1053 initialized."));
-	}
-
 	crcLights.init();
-	//crcLights.setLeftLed(0, 255);
-	//crcLights.setLeftLed(1, 255);
-	//crcLights.setLeftLed(2, 255);
-	//for (int i = 0; i < 10; i++) {
-	//	//crcLights.setLed(i, 0x4B, 0x00, 0x82);
-	//	crcLights.setLedHex(i, "#FFA500");
-	//}
-	//delay(2000);
-	
-	/*for (int l = 0; l < 2; l++) {
-		for (int i = 0; i < 5; i++) {
-			crcLights.setLed(i, 255, 0, 0);
-		}
-		for (int i = 6; i < 10; i++) {
-			crcLights.setLed(i, 0, 0, 255);
-		}
-		delay(500);
-		for (int i = 0; i < 5; i++) {
-			crcLights.setLed(i, 0, 0, 255);
-		}
-		for (int i = 6; i < 10; i++) {
-			crcLights.setLed(i, 255, 0, 0);
-		}
-		delay(500);
-	}*/
 
+	if (crcAudio.init()) {
+		unitState.audioPlayer = true;
+	}
+	else {
+		Serial.println(F("VS1053 not detected."));
+	}
 	crcLights.showRunway();
-	
-
 
 	//sensors.activate();
 	motors.initializeMotors(&motorLeft, &motorRight);
@@ -105,17 +75,16 @@ void setup() {
 	//selector[2].addChildren({  });
 
 	//MP3 Player & Amplifier
-	musicPlayer.useInterrupt(VS1053_FILEPLAYER_TIMER0_INT);
-	hardware.ampSetVolume(0); //0 = low, 3 = high
-	musicPlayer.setVolume(60, 60); //0 = loudest, 60 = softest?  (not sure what softest value is)
+	hardware.ampSetVolume(1); //0 = low, 3 = high
+	crcAudio.setVolume(10, 10); //0 = loudest, 60 = softest?  (not sure what softest value is)
 	if (!SD.begin(hardware.sdcard_cs)) {
-		Serial.println("SD card init failure.");
+		Serial.println(F("SD card init failure."));
 	}
 	else
 	{
-		Serial.println("SD card initialized.");
+		Serial.println(F("SD card initialized."));
 		hardware.ampEnable();
-		musicPlayer.startPlayingFile("effects/pwrup_05.mp3");
+		crcAudio.startAudioFile("effects/pwrup_05.mp3");
 	}
 	
 	//wait for sensors to kick in.
@@ -125,13 +94,12 @@ void setup() {
 
 
 void loop() {
+	crcAudio.updateAudioState();
+
 	if (!sensors.sensorsUpdated()) {
 		sensors.readIR();
 	}
 
-	if(musicPlayer.playingMusic){
-		//Serial.println(F("Playing."));
-	}
 	
 	if (!behaviorTree.run()) {
 		Serial.println(F("Tree did not complete."));

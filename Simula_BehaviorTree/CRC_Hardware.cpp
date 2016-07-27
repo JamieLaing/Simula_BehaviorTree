@@ -1,21 +1,30 @@
-// 
-// 
-// 
+/***************************************************
+Uses: Hardware abstraction layer and definitions for the
+Simula Board. Provides the constant definitions for each
+board revision, as well as module initializations.
 
-#include "Hardware.h"
-#include "Sensor_State.h"
+This file is designed for the Simula project by Chicago Robotics Corp.
+http://www.chicagorobotics.net/products
+
+Copyright (c) 2016, Chicago Robotics Corp.
+See README.md for license details
+****************************************************/
+
 #include <SD.h>
 #include <SPI.h>
 #include <Wire.h>
 
-void Hardware::init() {
+#include "CRC_Hardware.h"
+#include "Sensor_State.h"
+
+
+void CRC_HardwareClass::init() {
 	setupPins();
 	randomSeed(analogRead(A3));  //Get voltage reading from an unused pin.
 	setupSPI();
 	setupI2C();
 }
-
-void Hardware::setupPins()
+void CRC_HardwareClass::setupPins()
 {
 	//Set up audio amplifier and audio player
 	pinMode(vs1053_dreq, INPUT);
@@ -67,7 +76,7 @@ void Hardware::setupPins()
 	pinMode(pinPingTrigger, OUTPUT);
 	pinMode(pinPingEcho, INPUT);
 }
-void Hardware::ampSetVolume(int volumeLevel) {
+void CRC_HardwareClass::ampSetVolume(int volumeLevel) {
 	//0 = lowest volume, 3 = highest
 	pinMode(hardware.pinAmpGain0, OUTPUT);
 	pinMode(hardware.pinAmpGain1, OUTPUT);
@@ -98,21 +107,38 @@ void Hardware::ampSetVolume(int volumeLevel) {
 		//default to lowest volume.
 	}
 }
-void Hardware::ampEnable() {
+void CRC_HardwareClass::ampEnable() {
 	digitalWrite(pinAmpEnable, HIGH);
 }
-void Hardware::ampDisable() {
+void CRC_HardwareClass::ampDisable() {
 	digitalWrite(pinAmpEnable, LOW);
 }
-void Hardware::setupI2C()
+void CRC_HardwareClass::setupI2C()
 {
 	Wire.begin();
 	Wire.setTimeout(500);
 }
-void Hardware::setupSPI()
+void CRC_HardwareClass::setupSPI()
 {
 	SPI.begin();
 	SPI.setDataMode(SPI_MODE0);
 	SPI.setBitOrder(MSBFIRST);
 	SPI.setClockDivider(SPI_CLOCK_DIV128);
+}
+void CRC_HardwareClass::startScanStatus(unsigned long startTime)
+{
+	// Scan Free Ram START
+	// Keep this block as is at start of this method
+	extern int __heap_start, *__brkval;
+	int v;
+	unitState.freeRam = (uint16_t)(&v - (__brkval == 0 ? (uint16_t)&__heap_start : (uint16_t)__brkval));
+	// Scan Free Ram END
+};
+void CRC_HardwareClass::endScanStatus(unsigned long startTime)
+{
+	unsigned long endTime = millis();
+	unsigned long loopTime = endTime - startTime;
+	unitState.loopLastTimeMillis = loopTime; // Last Time in millis
+	unitState.loopMinTimeMillis = min(unitState.loopMinTimeMillis + 1, loopTime);  // Min Time in millis
+	unitState.loopMaxTimeMillis = max(unitState.loopMaxTimeMillis, loopTime);  // Max Time in millis
 }

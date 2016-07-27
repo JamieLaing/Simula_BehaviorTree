@@ -1,7 +1,17 @@
-// Hardware.h
+/***************************************************
+Uses: Hardware abstraction layer and definitions for the
+Simula Board. Provides the constant definitions for each
+board revision, as well as module initializations.
 
-#ifndef _HARDWARE_h
-#define _HARDWARE_h
+This file is designed for the Simula project by Chicago Robotics Corp.
+http://www.chicagorobotics.net/products
+
+Copyright (c) 2016, Chicago Robotics Corp.
+See README.md for license details
+****************************************************/
+
+#ifndef _CRC_HARDWARE_h
+#define _CRC_HARDWARE_h
 
 #if defined(ARDUINO) && ARDUINO >= 100
 	#include "arduino.h"
@@ -9,7 +19,8 @@
 	#include "WProgram.h"
 #endif
 
-class Hardware {
+class CRC_HardwareClass
+{
 public:
 	// Define Pin's by Hardware Revisions
 	// Default to the ALPHA Units Pinouts
@@ -82,6 +93,8 @@ public:
 #endif
 
 	void init();
+	void startScanStatus(unsigned long startTime);
+	void endScanStatus(unsigned long startTime);
 	void ampSetVolume(int volumeLevel);
 	void ampEnable();
 	void ampDisable();
@@ -91,7 +104,7 @@ private:
 	void setupSPI();
 };
 
-extern Hardware hardware;
+extern CRC_HardwareClass hardware;
 
 #endif
 

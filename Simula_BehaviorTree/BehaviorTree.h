@@ -140,8 +140,8 @@ private:
 			if (reading != buttonState) {
 				buttonState = reading;
 				if (buttonState == HIGH) {
-					sensorState.buttonPressed = !sensorState.buttonPressed;
-					if (sensorState.buttonPressed)
+					unitState.buttonPressed = !unitState.buttonPressed;
+					if (unitState.buttonPressed)
 					{
 						Serial.println(F("Autonomous mode off."));
 						motors.motorLeft->powerOff();
@@ -160,7 +160,7 @@ private:
 			}
 		}
 		lastButtonState = reading;
-		return sensorState.buttonPressed;
+		return unitState.buttonPressed;
 	}
 };
 class Battery_Check : public Behavior_Tree::Node {
@@ -205,7 +205,7 @@ private:
 		currentTime = millis();
 
 		if(!nodeActive){
-			if (sensorState.irLeftCliff && sensorState.irRightCliff) {
+			if (unitState.irLeftCliff && unitState.irRightCliff) {
 				nodeActive = true;
 				Serial.println(F("Cliff center detected."));
 				nodeStartTime = currentTime;
@@ -215,7 +215,7 @@ private:
 		}
 		else
 		{
-			if ((nodeStartTime + duration < currentTime) && (!sensorState.irLeftCliff && !sensorState.irRightCliff)) {
+			if ((nodeStartTime + duration < currentTime) && (!unitState.irLeftCliff && !unitState.irRightCliff)) {
 				Serial.println(F("Cliff center complete."));
 				nodeActive = false;
 				nodeStartTime = 0;
@@ -241,7 +241,7 @@ private:
 		currentTime = millis();
 
 		if (!nodeActive) {
-			if (sensorState.irLeftCliff && !sensorState.irRightCliff) {
+			if (unitState.irLeftCliff && !unitState.irRightCliff) {
 				Serial.println(F("Cliff left detected."));
 				nodeStartTime = currentTime;
 				nodeActive = true;
@@ -283,7 +283,7 @@ private:
 		currentTime = millis();
 
 		if (!nodeActive) {
-			if (!sensorState.irLeftCliff && sensorState.irRightCliff) {
+			if (!unitState.irLeftCliff && unitState.irRightCliff) {
 				Serial.println(F("Cliff right detected."));
 				nodeStartTime = currentTime;
 				nodeActive = true;
@@ -323,11 +323,11 @@ private:
 	virtual bool run() override {
 		currentTime = millis();
 		if (!nodeActive) {
-			if (sensorState.irFrontCM < alarmCM && sensorState.irFrontCM > hardware.irMinimumCM) {
+			if (unitState.irFrontCM < alarmCM && unitState.irFrontCM > hardware.irMinimumCM) {
 				nodeStartTime = currentTime;
 				nodeActive = true;
 				Serial.print(F("Permimeter center alarm: "));
-				Serial.println(sensorState.irFrontCM);
+				Serial.println(unitState.irFrontCM);
 				//50% chance of turning either directon
 				long randNum = random(1, 101);
 
@@ -348,7 +348,7 @@ private:
 			}
 		}
 		else {
-			if ((nodeStartTime + duration < currentTime) && (sensorState.irFrontCM >= alarmCM)) {
+			if ((nodeStartTime + duration < currentTime) && (unitState.irFrontCM >= alarmCM)) {
 				Serial.println(F("Perimeter center complete."));
 				motors.motorLeft->powerOff();
 				motors.motorRight->powerOff();
@@ -371,18 +371,18 @@ private:
 	virtual bool run() override {
 		currentTime = millis();
 		if (!nodeActive) {
-			if (sensorState.irLeftFrontCM < alarmCM && sensorState.irLeftFrontCM > hardware.irMinimumCM) {
+			if (unitState.irLeftFrontCM < alarmCM && unitState.irLeftFrontCM > hardware.irMinimumCM) {
 				nodeStartTime = currentTime;
 				nodeActive = true;
 				Serial.print(F("Permimeter left front alarm: "));
-				Serial.println(sensorState.irLeftFrontCM);
+				Serial.println(unitState.irLeftFrontCM);
 				motors.motorLeft->setPower(160);
 				motors.motorRight->setPower(-160);
 				motors.motorsActive = true;
 			}
 		}
 		else {
-			if ((nodeStartTime + duration < currentTime) && sensorState.irLeftFrontCM >= alarmCM) {
+			if ((nodeStartTime + duration < currentTime) && unitState.irLeftFrontCM >= alarmCM) {
 				Serial.println(F("Perimeter left front complete."));
 				motors.motorLeft->powerOff();
 				motors.motorRight->powerOff();
@@ -405,18 +405,18 @@ private:
 	virtual bool run() override {
 		currentTime = millis();
 		if (!nodeActive) {
-			if (sensorState.irRightFrontCM < alarmCM && sensorState.irRightFrontCM > hardware.irMinimumCM) {
+			if (unitState.irRightFrontCM < alarmCM && unitState.irRightFrontCM > hardware.irMinimumCM) {
 				nodeStartTime = currentTime;
 				nodeActive = true;
 				Serial.print(F("Permimeter right front alarm: "));
-				Serial.println(sensorState.irRightFrontCM);
+				Serial.println(unitState.irRightFrontCM);
 				motors.motorLeft->setPower(-160);
 				motors.motorRight->setPower(160);
 				motors.motorsActive = true;
 			}
 		}
 		else {
-			if ((nodeStartTime + duration < currentTime) && sensorState.irRightFrontCM >= alarmCM) {
+			if ((nodeStartTime + duration < currentTime) && unitState.irRightFrontCM >= alarmCM) {
 				Serial.println(F("Perimeter right front complete."));
 				motors.motorLeft->powerOff();
 				motors.motorRight->powerOff();

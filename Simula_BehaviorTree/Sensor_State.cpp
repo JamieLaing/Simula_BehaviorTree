@@ -42,15 +42,15 @@ void Sensors::readIR() {
 	IR_AnalogDistance perimRight = IR_AnalogDistance(hardware.pinActPerim4, hardware.pinPerim4);
 	PingDistance frontPing = PingDistance(hardware.pinPingTrigger, hardware.pinPingEcho);
 
-	sensorState.irLeftCM = perimLeft.readDistance();
-	sensorState.irLeftFrontCM = perimLeftFront.readDistance();
-	sensorState.irFrontCM = perimFront.readDistance();
-	sensorState.irRightFrontCM = perimRightFront.readDistance();
-	sensorState.irRightCM = perimRight.readDistance();
-	sensorState.pingFrontCM = frontPing.readDistance();
+	unitState.irLeftCM = perimLeft.readDistance();
+	unitState.irLeftFrontCM = perimLeftFront.readDistance();
+	unitState.irFrontCM = perimFront.readDistance();
+	unitState.irRightFrontCM = perimRightFront.readDistance();
+	unitState.irRightCM = perimRight.readDistance();
+	unitState.pingFrontCM = frontPing.readDistance();
 
-	sensorState.irLeftCliff = !edgeLeft.objectDetected();
-	sensorState.irRightCliff = !edgeRight.objectDetected();
+	unitState.irLeftCliff = !edgeLeft.objectDetected();
+	unitState.irRightCliff = !edgeRight.objectDetected();
 	lastIrPollSensors = millis();
 }
 

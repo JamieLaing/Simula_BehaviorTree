@@ -11,7 +11,7 @@
 
 
 
-struct SENSOR_STATE {
+struct UNIT_STATE {
 	uint16_t totalRam = 0;      // Total RAM in bytes
 	uint16_t freeRam = 0;       // Free RAM in bytes
 	int8_t leftMotor = 0;       // -100 -> 100
@@ -36,7 +36,7 @@ struct SENSOR_STATE {
 	uint8_t pingFrontCM;		// Front Ping CM Reading
 };
 
-extern struct SENSOR_STATE sensorState;
+extern struct UNIT_STATE unitState;
 
 class Sensors {
 protected:

@@ -124,6 +124,31 @@ boolean CRC_LightsClass::setLedHex(uint8_t ledId, String hexString) {
 }
 
 void CRC_LightsClass::showRunway() {
+	//crcLights.setLeftLed(0, 255);
+	//crcLights.setLeftLed(1, 255);
+	//crcLights.setLeftLed(2, 255);
+	//for (int i = 0; i < 10; i++) {
+	//	//crcLights.setLed(i, 0x4B, 0x00, 0x82);
+	//	crcLights.setLedHex(i, "#FFA500");
+	//}
+	//delay(2000);
+
+	/*for (int l = 0; l < 2; l++) {
+	for (int i = 0; i < 5; i++) {
+	crcLights.setLed(i, 255, 0, 0);
+	}
+	for (int i = 6; i < 10; i++) {
+	crcLights.setLed(i, 0, 0, 255);
+	}
+	delay(500);
+	for (int i = 0; i < 5; i++) {
+	crcLights.setLed(i, 0, 0, 255);
+	}
+	for (int i = 6; i < 10; i++) {
+	crcLights.setLed(i, 255, 0, 0);
+	}
+	delay(500);
+	}*/
 	delay(500);
 	for (int i = 0; i < 10; i++) {
 		crcLights.setLed(i, 0, 0, 0);
