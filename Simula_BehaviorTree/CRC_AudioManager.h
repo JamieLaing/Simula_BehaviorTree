@@ -64,7 +64,7 @@ public:
 	void updateAudioState();
 };
 
-extern CRC_AudioManagerClass CRC_AudioManager;
+extern CRC_AudioManagerClass crcAudio;
 
 #endif
 

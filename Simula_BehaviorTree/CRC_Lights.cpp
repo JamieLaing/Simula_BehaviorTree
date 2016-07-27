@@ -77,7 +77,6 @@ void CRC_LightsClass::setLed(CRC_PCA9635 & ledBank, uint8_t ledNum, uint8_t leve
 	ledBank.setLed(ledNum, pgm_read_byte(&LIGHTS_LED_GAMMA[level]));
 }
 
-
 void CRC_LightsClass::setLeftLed(uint8_t ledNum, uint8_t level)
 {
 	setLed(ledLeft, ledNum, level);
@@ -87,7 +86,6 @@ void CRC_LightsClass::setRightLed(uint8_t ledNum, uint8_t level)
 {
 	setLed(ledRight, ledNum, level);
 }
-
 
 boolean CRC_LightsClass::setLed(uint8_t ledId, uint8_t red, uint8_t green, uint8_t blue)
 {
@@ -149,13 +147,11 @@ void CRC_LightsClass::showRunway() {
 	}
 	delay(500);
 	}*/
-	delay(500);
 	for (int i = 0; i < 10; i++) {
 		crcLights.setLed(i, 0, 0, 0);
 	}
-	delay(500);
 
-	for (int k = 0; k < 20; k++) {
+	for (int k = 0; k < 5; k++) {
 		for (int j = 10; j > 4; j--) {
 			for (int i = 0; i < 10; i++) {
 				crcLights.setLed(i, 0, 0, 0);

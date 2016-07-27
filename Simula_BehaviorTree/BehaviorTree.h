@@ -11,6 +11,7 @@
 
 #include "Motor.h"
 #include "Sensor_State.h"
+#include "CRC_AudioManager.h"
 #include <StandardCplusplus.h>
 #include <list>
 #include <vector>
@@ -100,6 +101,7 @@ struct Emotional_State {
 	int pain;
 };
 extern struct Emotional_State emotionState;
+
 class Action : public Behavior_Tree::Node {
 private:
 	String name;
@@ -190,6 +192,39 @@ private:
 			Serial.println(F("Batteries low."));
 		}
 		return nodeActive;
+	}
+};
+
+class Orientation_Check : public Behavior_Tree::Node {
+private:
+	bool nodeActive = false;
+	const int Z_Orient_Min = 15000;
+	virtual bool run() override {
+
+
+		if (sensors.lsm.accelData.z < Z_Orient_Min) {
+			String filename = "emotions/scare_0" + String(random(1, 10)) + ".mp3";
+			crcAudio.startAudioFile(filename.c_str());
+			//crcAudio.startAudioFile("effects/pwrup_02.mp3");
+			Serial.print("Z: ");
+			Serial.println(sensors.lsm.accelData.z);
+			nodeActive = true;
+		}
+		else {
+			nodeActive = false;
+		}
+		return nodeActive;
+
+		/*Serial.print("Accel X: "); Serial.print((int)sensors.lsm.accelData.x); Serial.print(" ");
+		Serial.print("Y: "); Serial.print((int)sensors.lsm.accelData.y);       Serial.print(" ");
+		Serial.print("Z: "); Serial.println((int)sensors.lsm.accelData.z);     Serial.print(" ");
+		Serial.print("Mag X: "); Serial.print((int)sensors.lsm.magData.x);     Serial.print(" ");
+		Serial.print("Y: "); Serial.print((int)sensors.lsm.magData.y);         Serial.print(" ");
+		Serial.print("Z: "); Serial.println((int)sensors.lsm.magData.z);       Serial.print(" ");
+		Serial.print("Gyro X: "); Serial.print((int)sensors.lsm.gyroData.x);   Serial.print(" ");
+		Serial.print("Y: "); Serial.print((int)sensors.lsm.gyroData.y);        Serial.print(" ");
+		Serial.print("Z: "); Serial.println((int)sensors.lsm.gyroData.z);      Serial.print(" ");
+		Serial.print("Temp: "); Serial.print((int)sensors.lsm.temperature);    Serial.println(" ");*/
 	}
 };
 

@@ -49,7 +49,7 @@ public:
 	void activate();
 	void deactivate();
 	void readIR();
-	boolean sensorsUpdated();
+	boolean irReadingUpdated();
 	Adafruit_LSM9DS0 lsm;
 };
 

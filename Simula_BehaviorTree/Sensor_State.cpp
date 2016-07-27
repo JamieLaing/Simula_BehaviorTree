@@ -54,7 +54,7 @@ void Sensors::readIR() {
 	lastIrPollSensors = millis();
 }
 
-boolean Sensors::sensorsUpdated() {
+boolean Sensors::irReadingUpdated() {
 	unsigned long now = millis();
 	unsigned long diff = now - lastIrPollSensors;
 

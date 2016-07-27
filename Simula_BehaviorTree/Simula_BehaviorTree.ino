@@ -53,6 +53,7 @@ Perimeter_Center perimeterCenter;
 Perimeter_Left perimeterLeft;
 Perimeter_Right perimeterRight;
 Random_Action randomAction;
+Orientation_Check orientationCheck;
 
 void setup() {
 	Serial.begin(115200);
@@ -99,7 +100,7 @@ void setup() {
 	motors.initializeMotors(&motorLeft, &motorRight);
 	
 	behaviorTree.setRootChild(&selector[0]);
-	selector[0].addChildren({ &buttonStop, &batteryCheck, &selector[1], &randomAction, &cruise });
+	selector[0].addChildren({ &buttonStop, &batteryCheck, &orientationCheck, &selector[1], &randomAction, &cruise });
 	selector[1].addChildren({ &cliffCenter, &cliffLeft, &cliffRight, &perimeterCenter, &perimeterLeft, &perimeterRight });
 	//selector[2].addChildren({  });
 
@@ -113,7 +114,10 @@ void setup() {
 	else
 	{
 		Serial.println(F("SD card initialized."));
-		crcAudio.startAudioFile("effects/pwrup_02.mp3");
+
+		String filename = "emotions/scare_0" + String(random(1, 6)) + ".mp3";
+		Serial.println(filename);
+		crcAudio.startAudioFile(filename.c_str());
 	}
 	
 	//wait for sensors to kick in.
@@ -126,22 +130,10 @@ void loop() {
 
 	crcAudio.updateAudioState();
 	sensors.lsm.read();
-	/*Serial.print("Accel X: "); Serial.print((int)sensors.lsm.accelData.x); Serial.print(" ");
-	Serial.print("Y: "); Serial.print((int)sensors.lsm.accelData.y);       Serial.print(" ");
-	Serial.print("Z: "); Serial.println((int)sensors.lsm.accelData.z);     Serial.print(" ");
-	Serial.print("Mag X: "); Serial.print((int)sensors.lsm.magData.x);     Serial.print(" ");
-	Serial.print("Y: "); Serial.print((int)sensors.lsm.magData.y);         Serial.print(" ");
-	Serial.print("Z: "); Serial.println((int)sensors.lsm.magData.z);       Serial.print(" ");
-	Serial.print("Gyro X: "); Serial.print((int)sensors.lsm.gyroData.x);   Serial.print(" ");
-	Serial.print("Y: "); Serial.print((int)sensors.lsm.gyroData.y);        Serial.print(" ");
-	Serial.print("Z: "); Serial.println((int)sensors.lsm.gyroData.z);      Serial.print(" ");
-	Serial.print("Temp: "); Serial.print((int)sensors.lsm.temperature);    Serial.println(" ");*/
-	//delay(500);
 
-	if (!sensors.sensorsUpdated()) {
+	if (!sensors.irReadingUpdated()) {
 		sensors.readIR();
 	}
-
 	
 	if (!behaviorTree.run()) {
 		Serial.println(F("Tree did not complete."));
