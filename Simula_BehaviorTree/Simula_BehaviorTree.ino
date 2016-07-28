@@ -36,9 +36,6 @@ Motor motorRight(hardware.enc2A, hardware.enc2B, hardware.mtr2Enable, hardware.m
 Motors motors;
 CRC_LightsClass crcLights(hardware.i2cPca9635Left, hardware.i2cPca9635Right);
 CRC_AudioManagerClass crcAudio;
-//Adafruit_LSM9DS0 lsm = Adafruit_LSM9DS0();
-
-
 Behavior_Tree behaviorTree;
 Behavior_Tree::Selector selector[3];
 //Behavior_Tree::RandomSelector random[2];
@@ -93,6 +90,7 @@ void setup() {
 		sensors.lsm.setupGyro(sensors.lsm.LSM9DS0_GYROSCALE_245DPS);
 		//lsm.setupGyro(lsm.LSM9DS0_GYROSCALE_500DPS);
 		//lsm.setupGyro(lsm.LSM9DS0_GYROSCALE_2000DPS);
+		
 		Serial.println(F("LSM9DSO configured."));
 	}
 
@@ -114,7 +112,6 @@ void setup() {
 	else
 	{
 		Serial.println(F("SD card initialized."));
-
 		String filename = "emotions/scare_0" + String(random(1, 6)) + ".mp3";
 		Serial.println(filename);
 		crcAudio.startAudioFile(filename.c_str());

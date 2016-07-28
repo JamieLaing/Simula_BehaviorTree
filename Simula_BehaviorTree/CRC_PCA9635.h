@@ -23,8 +23,6 @@ protected:
 
 	uint8_t _address;
 
-
-
 	/**
 	* Sets the Mode
 	**/
