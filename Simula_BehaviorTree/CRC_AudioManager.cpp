@@ -293,7 +293,7 @@ void CRC_AudioManagerClass::setVolume(uint8_t left, uint8_t right)
 
 	sciWrite(VS1053_REG_VOLUME, v);
 }
-void CRC_AudioManagerClass::updateAudioState()
+void CRC_AudioManagerClass::tick()
 {
 	feedAudioBuffer();
 

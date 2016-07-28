@@ -35,6 +35,7 @@ public:
 	void setLeftLed(uint8_t ledNum, uint8_t level); // 0=Off, 1000 = On, between 1-256 = Level
 	void setRightLed(uint8_t ledNum, uint8_t level); // 0=Off, 1000 = On, between 1-256 = Level
 	void showRunway();
+	void tick();  //increment state of lights
 
 	boolean setLed(uint8_t ledId, uint8_t red, uint8_t green, uint8_t blue);
 	boolean setLedHex(uint8_t ledId, String hexString);

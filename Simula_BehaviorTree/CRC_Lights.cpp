@@ -54,6 +54,54 @@ const uint8_t PROGMEM LIGHTS_LED_GAMMA[] =
 	215,218,220,223,225,228,231,233,236,239,241,244,247,249,252,255
 };
 
+int currentAnimation;
+int currentFrame = 0;  //the current frame in the animation.  incremented by tick().
+unsigned long frameDuration = 0;  //The duration for a particular animation.
+unsigned long frameStartTime = 0;
+const uint8_t PROGMEM aniRunway[5][5][3]= 
+{
+	{ //this means led 10 and 5 are on, the rest are off.
+		{ 10, 5, 1 },
+		{ 9, 4, 0 },
+		{ 8, 3, 0 },
+		{ 7, 2, 0 },
+		{ 6, 1, 0 }
+	},
+	{ //led 9 and 4 are on, the rest are off, etc.
+		{ 10, 5, 0 },
+		{ 9, 4, 1 },
+		{ 8, 3, 0 },
+		{ 7, 2, 0 },
+		{ 6, 1, 0 }
+	},
+	{
+		{ 10, 5, 0 },
+		{ 9, 4, 0 },
+		{ 8, 3, 1 },
+		{ 7, 2, 0 },
+		{ 6, 1, 0 }
+	},
+	{
+		{ 10, 5, 0 },
+		{ 9, 4, 0 },
+		{ 8, 3, 0 },
+		{ 7, 2, 1 },
+		{ 6, 1, 0 }
+	},
+	{
+		{ 10, 5, 0 },
+		{ 9, 4, 0 },
+		{ 8, 3, 0 },
+		{ 7, 2, 0 },
+		{ 6, 1, 1 }
+	}
+};
+
+//Increment state of lights
+void CRC_LightsClass::tick() {
+	
+}
+
 CRC_LightsClass::CRC_LightsClass(uint8_t leftAddress, uint8_t rightAddress)
 	:ledLeft(leftAddress), ledRight(rightAddress)
 {
@@ -122,31 +170,7 @@ boolean CRC_LightsClass::setLedHex(uint8_t ledId, String hexString) {
 }
 
 void CRC_LightsClass::showRunway() {
-	//crcLights.setLeftLed(0, 255);
-	//crcLights.setLeftLed(1, 255);
-	//crcLights.setLeftLed(2, 255);
-	//for (int i = 0; i < 10; i++) {
-	//	//crcLights.setLed(i, 0x4B, 0x00, 0x82);
-	//	crcLights.setLedHex(i, "#FFA500");
-	//}
-	//delay(2000);
-
-	/*for (int l = 0; l < 2; l++) {
-	for (int i = 0; i < 5; i++) {
-	crcLights.setLed(i, 255, 0, 0);
-	}
-	for (int i = 6; i < 10; i++) {
-	crcLights.setLed(i, 0, 0, 255);
-	}
-	delay(500);
-	for (int i = 0; i < 5; i++) {
-	crcLights.setLed(i, 0, 0, 255);
-	}
-	for (int i = 6; i < 10; i++) {
-	crcLights.setLed(i, 255, 0, 0);
-	}
-	delay(500);
-	}*/
+	
 	for (int i = 0; i < 10; i++) {
 		crcLights.setLed(i, 0, 0, 0);
 	}

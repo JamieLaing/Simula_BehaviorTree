@@ -125,7 +125,8 @@ void setup() {
 
 void loop() {
 
-	crcAudio.updateAudioState();
+	crcLights.tick();
+	crcAudio.tick();
 	sensors.lsm.read();
 
 	if (!sensors.irReadingUpdated()) {

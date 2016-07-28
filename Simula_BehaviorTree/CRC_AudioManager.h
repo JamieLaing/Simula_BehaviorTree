@@ -61,7 +61,7 @@ public:
 	void setAmpGain(uint8_t level);
 	void setVolume(uint8_t left, uint8_t right);
 
-	void updateAudioState();
+	void tick();
 };
 
 extern CRC_AudioManagerClass crcAudio;
