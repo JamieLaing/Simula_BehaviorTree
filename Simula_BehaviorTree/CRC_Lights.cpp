@@ -9,6 +9,7 @@ See README.md for license details
 ****************************************************/
 
 #include "CRC_Lights.h"
+#include "CRC_Hardware.h"
 
 struct LIGHTS_LED_DEFINITION {
 	boolean isLeft;
@@ -99,12 +100,77 @@ const uint8_t PROGMEM aniRunway[5][5][3]=
 
 //Increment state of lights
 void CRC_LightsClass::tick() {
-	
+	unsigned long now = millis();
+	buttonBreath(now);
+	ledBreath(now);
+}
+
+void CRC_LightsClass::ledBreath(unsigned long &now) {
+	/*if (currentAnimation == CRC_LIGHTS_ANI_BREATH) {
+		if (now - breathFadeDelay > breathFadeTimecheck) {
+			breathFadeTimecheck = now;
+			for (int i = 0; i < 10; i++) {
+				crcLights.setLed(i, breathBrightness, breathBrightness, breathBrightness);
+			}
+			breathBrightness = breathBrightness + breathFadeAmount;
+			if (breathBrightness == 0 || breathBrightness >= 255) {
+				breathFadeAmount = -breathFadeAmount;
+			}
+		}
+	}*/
+}
+
+void CRC_LightsClass::buttonBreath(unsigned long &now) {
+	if (breathing) {
+		if (now - buttonFadeDelay > buttonFadeTimecheck) {
+			buttonFadeTimecheck = now;
+			setButtonLevel(buttonBrightness);
+			buttonBrightness = buttonBrightness + buttonFadeAmount;
+			if (buttonBrightness == 0 || buttonBrightness >= 60) {
+				buttonFadeAmount = -buttonFadeAmount;
+			}
+		}
+	}
+}
+
+void CRC_LightsClass::setButtonLevel(uint8_t level) {
+	analogWrite(hardware.pinButtonLED, level);
+}
+
+void CRC_LightsClass::showRunway2() {
+	//currentAnimation = &aniRunway;
+}
+
+void CRC_LightsClass::showRunway() {
+
+	for (int i = 0; i < 10; i++) {
+		crcLights.setLed(i, 0, 0, 0);
+	}
+
+	for (int k = 0; k < 5; k++) {
+		for (int j = 10; j > 4; j--) {
+			for (int i = 0; i < 10; i++) {
+				crcLights.setLed(i, 0, 0, 0);
+			}
+			crcLights.setLed(j, 255, 0, 0);
+			crcLights.setLed(j - 5, 255, 0, 0);
+			delay(10);
+		}
+	}
+
+	for (int i = 0; i < 10; i++) {
+		crcLights.setLed(i, 0, 0, 0);
+	}
 }
 
 CRC_LightsClass::CRC_LightsClass(uint8_t leftAddress, uint8_t rightAddress)
 	:ledLeft(leftAddress), ledRight(rightAddress)
 {
+	breathing = false;
+	buttonBrightness = 0;
+	buttonFadeAmount = 1;
+	buttonFadeDelay = 35;
+	buttonFadeTimecheck = millis();
 }
 
 void CRC_LightsClass::init()
@@ -169,24 +235,3 @@ boolean CRC_LightsClass::setLedHex(uint8_t ledId, String hexString) {
 	return true;
 }
 
-void CRC_LightsClass::showRunway() {
-	
-	for (int i = 0; i < 10; i++) {
-		crcLights.setLed(i, 0, 0, 0);
-	}
-
-	for (int k = 0; k < 5; k++) {
-		for (int j = 10; j > 4; j--) {
-			for (int i = 0; i < 10; i++) {
-				crcLights.setLed(i, 0, 0, 0);
-			}
-			crcLights.setLed(j, 255, 0, 0);
-			crcLights.setLed(j - 5, 255, 0, 0);
-			delay(10);
-		}
-	}
-
-	for (int i = 0; i < 10; i++) {
-		crcLights.setLed(i, 0, 0, 0);
-	}
-}

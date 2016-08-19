@@ -12,6 +12,7 @@
 #include "Motor.h"
 #include "Sensor_State.h"
 #include "CRC_AudioManager.h"
+#include "CRC_Lights.h"
 #include <StandardCplusplus.h>
 #include <list>
 #include <vector>
@@ -91,17 +92,6 @@ public:
 	void setRootChild(Node* rootChild) const { root->setChild(rootChild); }
 	bool run() const { return root->run(); }
 };
-
-struct Emotional_State {
-	int fear;
-	int sadness;
-	int surprise;
-	int happiness;
-	int anger;
-	int pain;
-};
-extern struct Emotional_State emotionState;
-
 class Action : public Behavior_Tree::Node {
 private:
 	String name;
@@ -127,7 +117,6 @@ private:
 };
 class Button_Stop : public Behavior_Tree::Node {
 private:
-	String name = "Button";
 	bool buttonState = false;
 	int lastButtonState = HIGH;
 	unsigned long debounceTime;
@@ -146,6 +135,7 @@ private:
 					if (unitState.buttonPressed)
 					{
 						Serial.println(F("Autonomous mode off."));
+						crcLights.currentAnimation = crcLights.animationNone;
 						motors.motorLeft->powerOff();
 						motors.motorRight->powerOff();
 						motors.motorsActive = false;
@@ -153,6 +143,7 @@ private:
 					}
 					else {
 						Serial.println(F("Activating behavior tree."));
+						crcLights.currentAnimation = crcLights.animationBreathing;
 						sensors.activate();
 						delay(50);
 						//return true to allow sensors to read before next tree loop.
@@ -171,7 +162,6 @@ private:
 	unsigned long now;
 	unsigned long lastCheck = 0;
 	int interval = 10000;
-
 	virtual bool run() override {
 		now = millis();
 		if (!nodeActive) {
@@ -203,9 +193,7 @@ private:
 
 
 		if (sensors.lsm.accelData.z < Z_Orient_Min) {
-			String filename = "emotions/scare_0" + String(random(1, 10)) + ".mp3";
-			crcAudio.startAudioFile(filename.c_str());
-			//crcAudio.startAudioFile("effects/pwrup_02.mp3");
+			crcAudio.playRandomAudio("emotions/scare_", 9, ".mp3");
 			Serial.print("Z: ");
 			Serial.println(sensors.lsm.accelData.z);
 			nodeActive = true;
@@ -234,7 +222,6 @@ private:
 	const long duration = 200;
 	unsigned long currentTime;
 	unsigned long nodeStartTime = 0;
-	
 	virtual bool run() override {
 
 		currentTime = millis();
@@ -270,7 +257,6 @@ private:
 	unsigned long currentTime;
 	unsigned long nodeStartTime = 0;
 	bool turnStarted = false;
-	
 	virtual bool run() override {
 
 		currentTime = millis();
@@ -312,7 +298,6 @@ private:
 	unsigned long currentTime;
 	unsigned long nodeStartTime = 0;
 	bool turnStarted = false;
-
 	virtual bool run() override {
 
 		currentTime = millis();
@@ -354,7 +339,6 @@ private:
 	const long duration = 200;
 	unsigned long currentTime;
 	unsigned long nodeStartTime = 0;
-	
 	virtual bool run() override {
 		currentTime = millis();
 		if (!nodeActive) {
@@ -402,7 +386,6 @@ private:
 	const long duration = 200;
 	unsigned long currentTime;
 	unsigned long nodeStartTime = 0;
-
 	virtual bool run() override {
 		currentTime = millis();
 		if (!nodeActive) {
@@ -436,7 +419,6 @@ private:
 	const long duration = 200;
 	unsigned long currentTime;
 	unsigned long nodeStartTime = 0;
-
 	virtual bool run() override {
 		currentTime = millis();
 		if (!nodeActive) {
@@ -475,7 +457,6 @@ private:
 	unsigned long lastCheck = 0;
 	unsigned long nodeStartTime = 0;
 	int percentChance = 10;
-
 	virtual bool run() override {
 		currentTime = millis();
 		if (lastCheck == 0) {
@@ -510,7 +491,6 @@ private:
 
 class Cruise_Forward : public Behavior_Tree::Node {
 private:
-	String name = "Cruise";
 	bool nodeActive = true;
 	virtual bool run() override {
 		if (!motors.motorsActive)

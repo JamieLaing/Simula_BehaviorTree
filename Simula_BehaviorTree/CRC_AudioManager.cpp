@@ -68,10 +68,10 @@ boolean CRC_AudioManagerClass::init()
 }
 void CRC_AudioManagerClass::dumpRegs(void) {
 	Serial.begin(115200, SERIAL_8N1);
-	Serial.print("Mode = 0x"); Serial.println(sciRead(VS1053_REG_MODE), HEX);
-	Serial.print("Stat = 0x"); Serial.println(sciRead(VS1053_REG_STATUS), HEX);
-	Serial.print("ClkF = 0x"); Serial.println(sciRead(VS1053_REG_CLOCKF), HEX);
-	Serial.print("Vol. = 0x"); Serial.println(sciRead(VS1053_REG_VOLUME), HEX);
+	Serial.print(F("Mode = 0x")); Serial.println(sciRead(VS1053_REG_MODE), HEX);
+	Serial.print(F("Stat = 0x")); Serial.println(sciRead(VS1053_REG_STATUS), HEX);
+	Serial.print(F("ClkF = 0x")); Serial.println(sciRead(VS1053_REG_CLOCKF), HEX);
+	Serial.print(F("Vol. = 0x")); Serial.println(sciRead(VS1053_REG_VOLUME), HEX);
 	Serial.end();
 }
 void CRC_AudioManagerClass::reset()
@@ -255,6 +255,24 @@ void CRC_AudioManagerClass::enableAmp() {
 void CRC_AudioManagerClass::disableAmp() {
 	digitalWrite(hardware.pinAmpEnable, LOW);
 	_ampEnabled = false;
+}
+void CRC_AudioManagerClass::playRandomAudio(String fileBase, int fileCount, String fileSuffix) {
+	hardware.seedRandomGenerator();
+	int randomFile = random(1, fileCount + 1);
+	String fileNumber = formatLeadingZero(randomFile);
+	String filename = fileBase + fileNumber + fileSuffix;
+	Serial.println(filename);
+	crcAudio.startAudioFile(filename.c_str());
+}
+String CRC_AudioManagerClass::formatLeadingZero(int value) {
+	String retVal;
+	if (value < 10) {
+		retVal = "0" + String(value);
+	}
+	else {
+		retVal = String(value);
+	}
+	return retVal;
 }
 // 0 = lowest volume, 3 = highest volume
 void CRC_AudioManagerClass::setAmpGain(uint8_t level)

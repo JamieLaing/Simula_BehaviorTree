@@ -29,7 +29,7 @@ public:
 	const byte enc1A = 3;
 	const byte enc1B = 2;
 	const byte pinButton = 5;
-	const byte pinLED = 13;
+	const byte pinButtonLED = 13;
 	const byte enc2A = 18;
 	const byte enc2B = 19;
 
@@ -91,10 +91,10 @@ public:
 	const uint8_t i2cPca9635Right = 0x01;
 
 #endif
-
 	void init();
 	void startScanStatus(unsigned long startTime);
 	void endScanStatus(unsigned long startTime);
+	void seedRandomGenerator();
 private:
 	void setupPins();
 	void setupI2C();

@@ -17,10 +17,8 @@ See README.md for license details
 #include "CRC_Hardware.h"
 #include "Sensor_State.h"
 
-
 void CRC_HardwareClass::init() {
 	setupPins();
-	randomSeed(analogRead(A3));  //Get voltage reading from an unused pin.
 	setupSPI();
 	setupI2C();
 }
@@ -50,7 +48,7 @@ void CRC_HardwareClass::setupPins()
 	digitalWrite(pinAmpEnable, LOW);
 
 	// 
-	pinMode(pinLED, OUTPUT);
+	pinMode(pinButtonLED, OUTPUT);
 	pinMode(pinButton, INPUT_PULLUP);
 
 	// Motor Pins
@@ -104,4 +102,7 @@ void CRC_HardwareClass::endScanStatus(unsigned long startTime)
 	unitState.loopLastTimeMillis = loopTime; // Last Time in millis
 	unitState.loopMinTimeMillis = min(unitState.loopMinTimeMillis + 1, loopTime);  // Min Time in millis
 	unitState.loopMaxTimeMillis = max(unitState.loopMaxTimeMillis, loopTime);  // Max Time in millis
+}
+void CRC_HardwareClass::seedRandomGenerator() {
+	randomSeed(analogRead(A3));  //Get voltage reading from an unused pin.
 }
