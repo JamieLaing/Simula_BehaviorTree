@@ -96,6 +96,7 @@ public:
 	void endScanStatus(unsigned long startTime);
 	void seedRandomGenerator();
 	float readBatteryVoltage();
+	int getRandomNumberInRange(int lowest, int highest);
 private:
 	void setupPins();
 	void setupI2C();

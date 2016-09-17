@@ -111,16 +111,14 @@ CRC_LightsClass::CRC_LightsClass(uint8_t leftAddress, uint8_t rightAddress)
 	breathFadeTimecheck = millis();
 	allOff = true;
 }
-
 void CRC_LightsClass::init()
 {
 	ledLeft.init();
 	ledRight.init();
 	currentAnimation = animationNone;
 }
-
-//Increment state of lights
 void CRC_LightsClass::tick() {
+	//Increment state of lights
 	unsigned long now = millis();
 	switch (currentAnimation) {
 	case animationBreathing:
@@ -134,7 +132,6 @@ void CRC_LightsClass::tick() {
 		break;
 	}
 }
-
 void CRC_LightsClass::ledBreath(unsigned long &now) {
 	if (now - breathFadeDelay > breathFadeTimecheck) {
 		breathFadeTimecheck = now;
@@ -163,7 +160,6 @@ void CRC_LightsClass::ledBreath(unsigned long &now) {
 		}
 	}
 }
-
 void CRC_LightsClass::buttonBreath(unsigned long &now) {
 	if (now - buttonFadeDelay > buttonFadeTimecheck) {
 		buttonFadeTimecheck = now;
@@ -175,19 +171,15 @@ void CRC_LightsClass::buttonBreath(unsigned long &now) {
 		}
 	}
 }
-
 void CRC_LightsClass::setButtonLevel(uint8_t level) {
 	analogWrite(hardware.pinButtonLED, level);
 }
-
 void CRC_LightsClass::showBreathing() {
 	currentAnimation = animationBreathing;
 }
-
 void CRC_LightsClass::showRunway2() {
 	currentAnimation = animationRunwayFwd;
 }
-
 void CRC_LightsClass::showRunwayWithDelay() {
 
 	for (int i = 0; i < 10; i++) {
@@ -216,6 +208,9 @@ void CRC_LightsClass::setAllOff() {
 		}
 	}
 }
+void CRC_LightsClass::setRandomColor(){
+
+}
 
 /*
 *Control the led channel mode, modes:
@@ -232,17 +227,14 @@ void CRC_LightsClass::setLed(CRC_PCA9635 & ledBank, uint8_t ledNum, uint8_t leve
 		allOff = false;
 	}
 }
-
 void CRC_LightsClass::setLeftLed(uint8_t ledNum, uint8_t level)
 {
 	setLed(ledLeft, ledNum, level);
 }
-
 void CRC_LightsClass::setRightLed(uint8_t ledNum, uint8_t level)
 {
 	setLed(ledRight, ledNum, level);
 }
-
 boolean CRC_LightsClass::setLed(uint8_t ledId, uint8_t red, uint8_t green, uint8_t blue)
 {
 	if (ledId >= LIGHTS_LED_DEFINITION_COUNT) {
@@ -264,7 +256,6 @@ boolean CRC_LightsClass::setLed(uint8_t ledId, uint8_t red, uint8_t green, uint8
 
 	return true;
 }
-
 boolean CRC_LightsClass::setLedHex(uint8_t ledId, String hexString) {
 	
 	long number = strtol(&hexString[1], NULL, 16);

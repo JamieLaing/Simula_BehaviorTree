@@ -123,3 +123,7 @@ float CRC_HardwareClass::readBatteryVoltage() {
 	}
 	return postVoltage;
 }
+int CRC_HardwareClass::getRandomNumberInRange(int lowest, int highest) {
+	seedRandomGenerator();
+	return random(lowest, highest + 1);
+}
