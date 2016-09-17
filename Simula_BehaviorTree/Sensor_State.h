@@ -11,7 +11,6 @@
 
 #include <Adafruit_LSM9DS0.h>
 
-
 struct UNIT_STATE {
 	uint16_t totalRam = 0;      // Total RAM in bytes
 	uint16_t freeRam = 0;       // Free RAM in bytes
@@ -24,7 +23,7 @@ struct UNIT_STATE {
 	unsigned long loopLastTimeMillis = 0; // Last Time in millis
 	unsigned long loopMinTimeMillis = 0;  // Min Time in millis
 	unsigned long loopMaxTimeMillis = 0;  // Max Time in millis
-	boolean buttonPressed = false;  //Default to pressed condition, stopping tree execution
+	boolean treeDeactivated = true;  //Default to pressed condition, stopping tree execution
 
 	//Distance sensors
 	boolean irLeftCliff;		// Left cliff sensor reading
@@ -37,7 +36,6 @@ struct UNIT_STATE {
 	uint8_t pingFrontCM;		// Front Ping CM Reading
 
 	//LSM readings
-
 };
 
 extern struct UNIT_STATE unitState;

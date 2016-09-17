@@ -117,7 +117,7 @@ private:
 };
 class Button_Stop : public Behavior_Tree::Node {
 private:
-	bool buttonState = false;
+	bool buttonState = true;
 	int lastButtonState = HIGH;
 	unsigned long debounceTime;
 	const long debounceDelay = 10;
@@ -131,11 +131,10 @@ private:
 			if (reading != buttonState) {
 				buttonState = reading;
 				if (buttonState == HIGH) {
-					unitState.buttonPressed = !unitState.buttonPressed;
-					if (unitState.buttonPressed)
+					unitState.treeDeactivated = !unitState.treeDeactivated;
+					if (unitState.treeDeactivated)
 					{
-						Serial.println(F("Autonomous mode off."));
-						crcLights.currentAnimation = crcLights.animationNone;
+						Serial.println(F("Behavior tree off."));
 						motors.motorLeft->powerOff();
 						motors.motorRight->powerOff();
 						motors.motorsActive = false;
@@ -143,7 +142,6 @@ private:
 					}
 					else {
 						Serial.println(F("Activating behavior tree."));
-						crcLights.currentAnimation = crcLights.animationBreathing;
 						sensors.activate();
 						delay(50);
 						//return true to allow sensors to read before next tree loop.
@@ -153,7 +151,7 @@ private:
 			}
 		}
 		lastButtonState = reading;
-		return unitState.buttonPressed;
+		return unitState.treeDeactivated;
 	}
 };
 class Battery_Check : public Behavior_Tree::Node {
@@ -167,11 +165,7 @@ private:
 		if (!nodeActive) {
 			if ((lastCheck == 0) || (now > lastCheck + interval)) {
 				lastCheck = now;
-				int preVoltage = analogRead(hardware.pinBatt);
-				//Standard voltage divider, with a 0.70 volt constant added to match measurements.
-				float postVoltage = (preVoltage * (5.00 / 1023.00) * 2) + 0.70;
-				Serial.print(F("Battery voltage: "));
-				Serial.println(postVoltage);
+				float postVoltage = hardware.readBatteryVoltage();
 				if (postVoltage < hardware.lowBatteryVoltage) {
 					nodeActive = true;
 				}
@@ -194,8 +188,8 @@ private:
 
 		if (sensors.lsm.accelData.z < Z_Orient_Min) {
 			crcAudio.playRandomAudio("emotions/scare_", 9, ".mp3");
-			Serial.print("Z: ");
-			Serial.println(sensors.lsm.accelData.z);
+			//Serial.print("Z: ");
+			//Serial.println(sensors.lsm.accelData.z);
 			nodeActive = true;
 		}
 		else {
@@ -301,7 +295,6 @@ private:
 	virtual bool run() override {
 
 		currentTime = millis();
-
 		if (!nodeActive) {
 			if (!unitState.irLeftCliff && unitState.irRightCliff) {
 				Serial.println(F("Cliff right detected."));

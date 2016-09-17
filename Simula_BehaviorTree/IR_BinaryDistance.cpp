@@ -14,5 +14,9 @@ boolean IR_BinaryDistance::objectDetected() {
 	{
 		reading = true;
 	}
+	if (!reading) {
+		Serial.print(F("Binary IR reading:"));
+		Serial.println(irValue);
+	}
 	return reading;
 }

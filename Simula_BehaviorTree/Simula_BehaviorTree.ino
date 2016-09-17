@@ -57,14 +57,18 @@ void setup() {
 	Serial.begin(115200);
 	Serial.println(F("Booting."));
 	sensors.lsm = Adafruit_LSM9DS0();
+	Serial.println(F("LSM instantiated."));
 	hardware.init();
+	Serial.println(F("Hardware initialized."));
 	crcLights.init();
+	Serial.println(F("Lights initialized."));
 
 	if (crcAudio.init()) {
 		unitState.audioPlayer = true;
+		Serial.println(F("Audio initialized."));
 	}
 	else {
-		Serial.println(F("VS1053 not detected."));
+		Serial.println(F("Audio chip not detected."));
 	}
 	if (!sensors.lsm.begin())
 	{
@@ -72,6 +76,7 @@ void setup() {
 	}
 	else
 	{
+		Serial.println(F("Setting IMU attributes."));
 		// 1.) Set the accelerometer range
 		sensors.lsm.setupAccel(sensors.lsm.LSM9DS0_ACCELRANGE_2G);
 		//lsm.setupAccel(lsm.LSM9DS0_ACCELRANGE_4G);
@@ -90,11 +95,13 @@ void setup() {
 		//lsm.setupGyro(lsm.LSM9DS0_GYROSCALE_500DPS);
 		//lsm.setupGyro(lsm.LSM9DS0_GYROSCALE_2000DPS);
 		
-		Serial.println(F("LSM9DSO configured."));
+		Serial.println(F("IMU configured."));
 	}
 
-	crcLights.breathing = true;
-	crcLights.showRunway();
+	//Check battery voltage.
+	float postVoltage = hardware.readBatteryVoltage();
+
+	crcLights.showRunwayWithDelay();
 	motors.initializeMotors(&motorLeft, &motorRight);
 	
 	behaviorTree.setRootChild(&selector[0]);
@@ -104,8 +111,8 @@ void setup() {
 
 	//MP3 Player & Amplifier
 	//hardware.ampSetVolume(1);
-	crcAudio.setAmpGain(2); //0 = low, 3 = high
-	crcAudio.setVolume(20, 20); //0 = loudest, 60 = softest ?
+	crcAudio.setAmpGain(1); //0 = low, 3 = high
+	crcAudio.setVolume(40, 40); //0 = loudest, 60 = softest ?
 	if (!SD.begin(hardware.sdcard_cs)) {
 		Serial.println(F("SD card init failure."));
 	}
@@ -117,15 +124,18 @@ void setup() {
 	
 	//wait for sensors to kick in.
 	Serial.println(F("Setup complete."));
+	crcLights.showBreathing();
 }
 
 void loop() {
 	crcLights.tick();
 	crcAudio.tick();
-	sensors.lsm.read();
-
-	if (!sensors.irReadingUpdated()) {
-		sensors.readIR();
+	if (!unitState.treeDeactivated)
+	{
+		sensors.lsm.read();
+		if (!sensors.irReadingUpdated()) {
+			sensors.readIR();
+		}
 	}
 	
 	if (!behaviorTree.run()) {

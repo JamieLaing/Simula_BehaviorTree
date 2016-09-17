@@ -95,6 +95,7 @@ public:
 	void startScanStatus(unsigned long startTime);
 	void endScanStatus(unsigned long startTime);
 	void seedRandomGenerator();
+	float readBatteryVoltage();
 private:
 	void setupPins();
 	void setupI2C();

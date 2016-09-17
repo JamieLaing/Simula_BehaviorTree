@@ -10,6 +10,12 @@ See README.md for license details
 
 #include "CRC_Lights.h"
 #include "CRC_Hardware.h"
+#define LIGHTS_LED_DEFINITION_COUNT     10
+
+uint8_t currentAnimation;
+const uint8_t animationNone = 0;
+const uint8_t animationBreathing = 1;
+const uint8_t animationRunwayFwd = 2;
 
 struct LIGHTS_LED_DEFINITION {
 	boolean isLeft;
@@ -32,8 +38,6 @@ static const LIGHTS_LED_DEFINITION LIGHTS_LED_MAPPINGS[] = {
 	{ false, 0x0E, 0x0D, 0x0C }  // 9 = R5
 };
 
-#define LIGHTS_LED_DEFINITION_COUNT     10
-
 // Gamma Correction for RGB Linear Value
 const uint8_t PROGMEM LIGHTS_LED_GAMMA[] =
 {
@@ -55,10 +59,6 @@ const uint8_t PROGMEM LIGHTS_LED_GAMMA[] =
 	215,218,220,223,225,228,231,233,236,239,241,244,247,249,252,255
 };
 
-int currentAnimation;
-int currentFrame = 0;  //the current frame in the animation.  incremented by tick().
-unsigned long frameDuration = 0;  //The duration for a particular animation.
-unsigned long frameStartTime = 0;
 const uint8_t PROGMEM aniRunway[5][5][3]= 
 {
 	{ //this means led 10 and 5 are on, the rest are off.
@@ -98,37 +98,80 @@ const uint8_t PROGMEM aniRunway[5][5][3]=
 	}
 };
 
+CRC_LightsClass::CRC_LightsClass(uint8_t leftAddress, uint8_t rightAddress)
+	:ledLeft(leftAddress), ledRight(rightAddress)
+{
+	buttonBrightness = 0;
+	buttonFadeAmount = 1;
+	buttonFadeDelay = 35;
+	buttonFadeTimecheck = millis();
+	breathBrightness = 0;
+	breathFadeAmount = 2;
+	breathFadeDelay = 70;
+	breathFadeTimecheck = millis();
+	allOff = true;
+}
+
+void CRC_LightsClass::init()
+{
+	ledLeft.init();
+	ledRight.init();
+	currentAnimation = animationNone;
+}
+
 //Increment state of lights
 void CRC_LightsClass::tick() {
 	unsigned long now = millis();
-	buttonBreath(now);
-	ledBreath(now);
+	switch (currentAnimation) {
+	case animationBreathing:
+		ledBreath(now);
+		buttonBreath(now);
+		break;
+	case animationRunwayFwd:
+		//animationRunwayFwd(now);
+		break;
+	default:
+		break;
+	}
 }
 
 void CRC_LightsClass::ledBreath(unsigned long &now) {
-	/*if (currentAnimation == CRC_LIGHTS_ANI_BREATH) {
-		if (now - breathFadeDelay > breathFadeTimecheck) {
-			breathFadeTimecheck = now;
-			for (int i = 0; i < 10; i++) {
+	if (now - breathFadeDelay > breathFadeTimecheck) {
+		breathFadeTimecheck = now;
+		
+		for (int i = 0; i < 10; i++) {
+			//crcLights.setLed(i, breathBrightness, breathBrightness, breathBrightness);
+			if (((i % 2) == 0) && (breathFadeAmount > 0))
+			{
 				crcLights.setLed(i, breathBrightness, breathBrightness, breathBrightness);
 			}
-			breathBrightness = breathBrightness + breathFadeAmount;
-			if (breathBrightness == 0 || breathBrightness >= 255) {
-				breathFadeAmount = -breathFadeAmount;
+			if (((i % 2) != 0) && (breathFadeAmount < 0))
+			{
+				crcLights.setLed(i, breathBrightness, breathBrightness, breathBrightness);
+			}
+			//Serial.print("Fade amount:");
+			//Serial.println(breathFadeAmount);
+		}
+		
+		breathBrightness = breathBrightness + breathFadeAmount;
+		if (breathBrightness <= 0 || breathBrightness >= 150) {
+			breathFadeAmount = -breathFadeAmount;
+			//turn all LEDs off
+			for (int i = 0; i < 10; i++) {
+				crcLights.setLed(i, 0, 0, 0);
 			}
 		}
-	}*/
+	}
 }
 
 void CRC_LightsClass::buttonBreath(unsigned long &now) {
-	if (breathing) {
-		if (now - buttonFadeDelay > buttonFadeTimecheck) {
-			buttonFadeTimecheck = now;
-			setButtonLevel(buttonBrightness);
-			buttonBrightness = buttonBrightness + buttonFadeAmount;
-			if (buttonBrightness == 0 || buttonBrightness >= 60) {
-				buttonFadeAmount = -buttonFadeAmount;
-			}
+	if (now - buttonFadeDelay > buttonFadeTimecheck) {
+		buttonFadeTimecheck = now;
+		setButtonLevel(buttonBrightness);
+		buttonBrightness = buttonBrightness + buttonFadeAmount;
+		if (buttonBrightness == 0 || buttonBrightness >= 60) {
+			buttonFadeAmount = -buttonFadeAmount;
+			//Serial.println(F("Reversing button breath direction."));
 		}
 	}
 }
@@ -137,11 +180,15 @@ void CRC_LightsClass::setButtonLevel(uint8_t level) {
 	analogWrite(hardware.pinButtonLED, level);
 }
 
-void CRC_LightsClass::showRunway2() {
-	//currentAnimation = &aniRunway;
+void CRC_LightsClass::showBreathing() {
+	currentAnimation = animationBreathing;
 }
 
-void CRC_LightsClass::showRunway() {
+void CRC_LightsClass::showRunway2() {
+	currentAnimation = animationRunwayFwd;
+}
+
+void CRC_LightsClass::showRunwayWithDelay() {
 
 	for (int i = 0; i < 10; i++) {
 		crcLights.setLed(i, 0, 0, 0);
@@ -162,21 +209,12 @@ void CRC_LightsClass::showRunway() {
 		crcLights.setLed(i, 0, 0, 0);
 	}
 }
-
-CRC_LightsClass::CRC_LightsClass(uint8_t leftAddress, uint8_t rightAddress)
-	:ledLeft(leftAddress), ledRight(rightAddress)
-{
-	breathing = false;
-	buttonBrightness = 0;
-	buttonFadeAmount = 1;
-	buttonFadeDelay = 35;
-	buttonFadeTimecheck = millis();
-}
-
-void CRC_LightsClass::init()
-{
-	ledLeft.init();
-	ledRight.init();
+void CRC_LightsClass::setAllOff() {
+	if (!allOff) {
+		for (int i = 0; i < 10; i++) {
+			crcLights.setLed(i, 0, 0, 0);
+		}
+	}
 }
 
 /*
@@ -189,6 +227,10 @@ void CRC_LightsClass::init()
 void CRC_LightsClass::setLed(CRC_PCA9635 & ledBank, uint8_t ledNum, uint8_t level)
 {
 	ledBank.setLed(ledNum, pgm_read_byte(&LIGHTS_LED_GAMMA[level]));
+	if (level > 0)
+	{
+		allOff = false;
+	}
 }
 
 void CRC_LightsClass::setLeftLed(uint8_t ledNum, uint8_t level)
