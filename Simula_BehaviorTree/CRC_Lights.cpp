@@ -1,5 +1,5 @@
 /***************************************************
-Uses: Provides higher level functions to Control the LED outputs
+Uses: Provides higher level functions to control Simula's LEDs.
 
 This file is designed for the Simula project by Chicago Robotics Corp.
 http://www.chicagorobotics.net/products
@@ -191,8 +191,12 @@ void CRC_LightsClass::showRunwayWithDelay() {
 			for (int i = 0; i < 10; i++) {
 				crcLights.setLed(i, 0, 0, 0);
 			}
-			crcLights.setLed(j, 255, 0, 0);
-			crcLights.setLed(j - 5, 255, 0, 0);
+
+			crcLights.setLed(j, color_R, color_G, color_B);
+			crcLights.setLed(j - 5, color_R, color_G, color_B);
+
+			/*crcLights.setLed(j, 255, 0, 0);
+			crcLights.setLed(j - 5, 255, 0, 0);*/
 			delay(10);
 		}
 	}
@@ -209,7 +213,15 @@ void CRC_LightsClass::setAllOff() {
 	}
 }
 void CRC_LightsClass::setRandomColor(){
-
+	color_R = hardware.getRandomNumberInRange(0, 255);
+	color_G = hardware.getRandomNumberInRange(0, 255);
+	color_B = hardware.getRandomNumberInRange(0, 255);
+	/*Serial.print("R:");
+	Serial.println(color_R);
+	Serial.print("G:");
+	Serial.println(color_G);
+	Serial.print("B:");
+	Serial.println(color_B);*/
 }
 
 /*

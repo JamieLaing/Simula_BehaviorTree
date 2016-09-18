@@ -1,4 +1,4 @@
-+/*
+/*
  Name:		Simula_BehaviorTree.ino
  Created:	6/11/2016 2:05:02 PM
  Author:	jlaing
@@ -101,7 +101,6 @@ void setup() {
 	//Check battery voltage.
 	float postVoltage = hardware.readBatteryVoltage();
 
-	crcLights.showRunwayWithDelay();
 	motors.initializeMotors(&motorLeft, &motorRight);
 	
 	behaviorTree.setRootChild(&selector[0]);
@@ -111,6 +110,8 @@ void setup() {
 
 	//MP3 Player & Amplifier
 	//hardware.ampSetVolume(1);
+	crcLights.setRandomColor();
+	crcLights.showRunwayWithDelay();
 	crcAudio.setAmpGain(1); //0 = low, 3 = high
 	crcAudio.setVolume(40, 40); //0 = loudest, 60 = softest ?
 	if (!SD.begin(hardware.sdcard_cs)) {
@@ -121,7 +122,6 @@ void setup() {
 		Serial.println(F("SD card initialized."));
 		crcAudio.playRandomAudio("effects/PwrUp_", 10, ".mp3");
 	}
-	
 	//wait for sensors to kick in.
 	Serial.println(F("Setup complete."));
 	crcLights.showBreathing();
