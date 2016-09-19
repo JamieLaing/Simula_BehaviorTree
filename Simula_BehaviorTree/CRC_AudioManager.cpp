@@ -65,6 +65,7 @@ boolean CRC_AudioManagerClass::init()
 	// Dump on init
 	// dumpRegs();
 	return (vs1053begin == 4);
+
 }
 void CRC_AudioManagerClass::dumpRegs(void) {
 	Serial.begin(115200, SERIAL_8N1);

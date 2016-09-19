@@ -15,9 +15,10 @@ See README.md for license details
 #include <Wire.h>
 
 #include "CRC_Hardware.h"
-#include "Sensor_State.h"
+#include "CRC_Sensors.h"
 
 void CRC_HardwareClass::init() {
+	seedRandomGenerator();
 	setupPins();
 	setupSPI();
 	setupI2C();
@@ -92,16 +93,16 @@ void CRC_HardwareClass::startScanStatus(unsigned long startTime)
 	// Keep this block as is at start of this method
 	extern int __heap_start, *__brkval;
 	int v;
-	unitState.freeRam = (uint16_t)(&v - (__brkval == 0 ? (uint16_t)&__heap_start : (uint16_t)__brkval));
+	hardwareState.freeRam = (uint16_t)(&v - (__brkval == 0 ? (uint16_t)&__heap_start : (uint16_t)__brkval));
 	// Scan Free Ram END
 };
 void CRC_HardwareClass::endScanStatus(unsigned long startTime)
 {
 	unsigned long endTime = millis();
 	unsigned long loopTime = endTime - startTime;
-	unitState.loopLastTimeMillis = loopTime; // Last Time in millis
-	unitState.loopMinTimeMillis = min(unitState.loopMinTimeMillis + 1, loopTime);  // Min Time in millis
-	unitState.loopMaxTimeMillis = max(unitState.loopMaxTimeMillis, loopTime);  // Max Time in millis
+	hardwareState.loopLastTimeMillis = loopTime; // Last Time in millis
+	hardwareState.loopMinTimeMillis = min(hardwareState.loopMinTimeMillis + 1, loopTime);  // Min Time in millis
+	hardwareState.loopMaxTimeMillis = max(hardwareState.loopMaxTimeMillis, loopTime);  // Max Time in millis
 }
 void CRC_HardwareClass::seedRandomGenerator() {
 	randomSeed(analogRead(A3));  //Get voltage reading from an unused pin.

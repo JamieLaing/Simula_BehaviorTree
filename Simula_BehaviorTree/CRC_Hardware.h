@@ -19,6 +19,21 @@ See README.md for license details
 	#include "WProgram.h"
 #endif
 
+struct HARDWARE_STATE {
+	uint16_t totalRam = 0;      // Total RAM in bytes
+	uint16_t freeRam = 0;       // Free RAM in bytes
+	int8_t leftMotor = 0;       // -100 -> 100
+	int8_t rightMotor = 0;       // -100 -> 100	
+	boolean sdCard = false;      // SD Card initialized/available state
+	boolean audioPlayer = false; // Audi Player state
+	boolean audioPlaying = false; // Is the audio player playing
+	uint8_t wireless = 0x00;     // Wireless Status
+	unsigned long loopLastTimeMillis = 0; // Last Time in millis
+	unsigned long loopMinTimeMillis = 0;  // Min Time in millis
+	unsigned long loopMaxTimeMillis = 0;  // Max Time in millis
+};
+extern struct HARDWARE_STATE hardwareState;
+
 class CRC_HardwareClass
 {
 public:

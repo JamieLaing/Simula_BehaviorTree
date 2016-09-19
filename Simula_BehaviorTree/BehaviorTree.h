@@ -10,7 +10,7 @@
 #endif
 
 #include "Motor.h"
-#include "Sensor_State.h"
+#include "CRC_Sensors.h"
 #include "CRC_AudioManager.h"
 #include "CRC_Lights.h"
 #include <StandardCplusplus.h>
@@ -18,6 +18,11 @@
 #include <vector>
 #include <initializer_list>
 #include <algorithm>
+
+struct TREE_STATE {
+	bool treeActive = false;
+};
+extern struct TREE_STATE treeState;
 
 class Behavior_Tree {  // Note:  A proper copy constructor and assignment operator should be defined, since the implicit ones use shallow copies only.
 private:
@@ -123,6 +128,10 @@ private:
 	const long debounceDelay = 10;
 	virtual bool run() override {
 		int reading = digitalRead(hardware.pinButton);
+		/*Serial.print("reading:");
+		Serial.println(reading);
+		Serial.print("lastButtonState:");
+		Serial.println(lastButtonState);*/
 		if (reading != lastButtonState) {
 			debounceTime = millis();
 		}
@@ -131,8 +140,8 @@ private:
 			if (reading != buttonState) {
 				buttonState = reading;
 				if (buttonState == HIGH) {
-					unitState.treeDeactivated = !unitState.treeDeactivated;
-					if (unitState.treeDeactivated)
+					treeState.treeActive = !treeState.treeActive;
+					if (!treeState.treeActive)
 					{
 						Serial.println(F("Behavior tree off."));
 						motors.motorLeft->powerOff();
@@ -151,7 +160,7 @@ private:
 			}
 		}
 		lastButtonState = reading;
-		return unitState.treeDeactivated;
+		return !treeState.treeActive;
 	}
 };
 class Battery_Check : public Behavior_Tree::Node {
@@ -221,7 +230,7 @@ private:
 		currentTime = millis();
 
 		if(!nodeActive){
-			if (unitState.irLeftCliff && unitState.irRightCliff) {
+			if (sensors.irLeftCliff && sensors.irRightCliff) {
 				nodeActive = true;
 				Serial.println(F("Cliff center detected."));
 				nodeStartTime = currentTime;
@@ -231,7 +240,7 @@ private:
 		}
 		else
 		{
-			if ((nodeStartTime + duration < currentTime) && (!unitState.irLeftCliff && !unitState.irRightCliff)) {
+			if ((nodeStartTime + duration < currentTime) && (!sensors.irLeftCliff && !sensors.irRightCliff)) {
 				Serial.println(F("Cliff center complete."));
 				nodeActive = false;
 				nodeStartTime = 0;
@@ -256,7 +265,7 @@ private:
 		currentTime = millis();
 
 		if (!nodeActive) {
-			if (unitState.irLeftCliff && !unitState.irRightCliff) {
+			if (sensors.irLeftCliff && !sensors.irRightCliff) {
 				Serial.println(F("Cliff left detected."));
 				nodeStartTime = currentTime;
 				nodeActive = true;
@@ -296,7 +305,7 @@ private:
 
 		currentTime = millis();
 		if (!nodeActive) {
-			if (!unitState.irLeftCliff && unitState.irRightCliff) {
+			if (!sensors.irLeftCliff && sensors.irRightCliff) {
 				Serial.println(F("Cliff right detected."));
 				nodeStartTime = currentTime;
 				nodeActive = true;
@@ -335,11 +344,11 @@ private:
 	virtual bool run() override {
 		currentTime = millis();
 		if (!nodeActive) {
-			if (unitState.irFrontCM < alarmCM && unitState.irFrontCM > hardware.irMinimumCM) {
+			if (sensors.irFrontCM < alarmCM && sensors.irFrontCM > hardware.irMinimumCM) {
 				nodeStartTime = currentTime;
 				nodeActive = true;
 				Serial.print(F("Permimeter center alarm: "));
-				Serial.println(unitState.irFrontCM);
+				Serial.println(sensors.irFrontCM);
 				//50% chance of turning either directon
 				long randNum = random(1, 101);
 
@@ -360,7 +369,7 @@ private:
 			}
 		}
 		else {
-			if ((nodeStartTime + duration < currentTime) && (unitState.irFrontCM >= alarmCM)) {
+			if ((nodeStartTime + duration < currentTime) && (sensors.irFrontCM >= alarmCM)) {
 				Serial.println(F("Perimeter center complete."));
 				motors.motorLeft->powerOff();
 				motors.motorRight->powerOff();
@@ -382,18 +391,18 @@ private:
 	virtual bool run() override {
 		currentTime = millis();
 		if (!nodeActive) {
-			if (unitState.irLeftFrontCM < alarmCM && unitState.irLeftFrontCM > hardware.irMinimumCM) {
+			if (sensors.irLeftFrontCM < alarmCM && sensors.irLeftFrontCM > hardware.irMinimumCM) {
 				nodeStartTime = currentTime;
 				nodeActive = true;
 				Serial.print(F("Permimeter left front alarm: "));
-				Serial.println(unitState.irLeftFrontCM);
+				Serial.println(sensors.irLeftFrontCM);
 				motors.motorLeft->setPower(160);
 				motors.motorRight->setPower(-160);
 				motors.motorsActive = true;
 			}
 		}
 		else {
-			if ((nodeStartTime + duration < currentTime) && unitState.irLeftFrontCM >= alarmCM) {
+			if ((nodeStartTime + duration < currentTime) && sensors.irLeftFrontCM >= alarmCM) {
 				Serial.println(F("Perimeter left front complete."));
 				motors.motorLeft->powerOff();
 				motors.motorRight->powerOff();
@@ -415,18 +424,18 @@ private:
 	virtual bool run() override {
 		currentTime = millis();
 		if (!nodeActive) {
-			if (unitState.irRightFrontCM < alarmCM && unitState.irRightFrontCM > hardware.irMinimumCM) {
+			if (sensors.irRightFrontCM < alarmCM && sensors.irRightFrontCM > hardware.irMinimumCM) {
 				nodeStartTime = currentTime;
 				nodeActive = true;
 				Serial.print(F("Permimeter right front alarm: "));
-				Serial.println(unitState.irRightFrontCM);
+				Serial.println(sensors.irRightFrontCM);
 				motors.motorLeft->setPower(-160);
 				motors.motorRight->setPower(160);
 				motors.motorsActive = true;
 			}
 		}
 		else {
-			if ((nodeStartTime + duration < currentTime) && unitState.irRightFrontCM >= alarmCM) {
+			if ((nodeStartTime + duration < currentTime) && sensors.irRightFrontCM >= alarmCM) {
 				Serial.println(F("Perimeter right front complete."));
 				motors.motorLeft->powerOff();
 				motors.motorRight->powerOff();
