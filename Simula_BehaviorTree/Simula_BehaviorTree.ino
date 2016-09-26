@@ -33,6 +33,7 @@ struct TREE_STATE treeState;
 
 Sensors sensors = Sensors();
 CRC_HardwareClass hardware;
+CRC_SimulationClass simulation;
 Motor motorLeft(hardware.enc1A, hardware.enc1B, hardware.mtr1Enable, hardware.mtr1In1, hardware.mtr1In2);
 Motor motorRight(hardware.enc2A, hardware.enc2B, hardware.mtr2Enable, hardware.mtr2In1, hardware.mtr2In2);
 Motors motors;
@@ -115,8 +116,9 @@ void setup() {
 }
 
 void loop() {
-	crcLights.tick();
+	//crcLights.tick();
 	crcAudio.tick();
+	simulation.tick();
 	if (treeState.treeActive)
 	{
 		sensors.lsm.read();

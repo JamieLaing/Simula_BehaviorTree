@@ -9,12 +9,24 @@
 	#include "WProgram.h"
 #endif
 
-class Simulation {
+class CRC_SimulationClass {
+private:
+	uint8_t exertion;  //0-100 range representing exertion level.
+	uint8_t restingBeats;  //resting BPM.
+	unsigned long beatMsCheck;
+	bool heartbeatUnderway;
+	void buttonHeartbeat(unsigned long &now);
+	uint8_t buttonBrightness;
+	uint8_t buttonFadeAmount;
+	uint8_t buttonFadeDelay;
 public:
-	uint8_t exertion;  //A 0-100 range representing exertion level.
+	CRC_SimulationClass();
+	void tick();
+	void showLedBio();
+	void showLedNone();
 };
 
-extern Simulation simulation;
+extern CRC_SimulationClass simulation;
 
 #endif
 

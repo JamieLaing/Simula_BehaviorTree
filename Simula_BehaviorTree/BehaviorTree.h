@@ -148,12 +148,12 @@ private:
 						motors.motorRight->powerOff();
 						motors.motorsActive = false;
 						sensors.deactivate();
-						crcLights.showNothing();
+						simulation.showLedNone();
 					}
 					else {
 						Serial.println(F("Activating behavior tree."));
 						sensors.activate();
-						crcLights.showBreathing();
+						simulation.showLedBio();
 						delay(50);
 						//return true to allow sensors to read before next tree loop.
 						return true;

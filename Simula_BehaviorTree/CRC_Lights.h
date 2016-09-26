@@ -23,10 +23,6 @@ class CRC_LightsClass
 {
 
 private:
-	int currentFrame = 0;  //the current frame in the animation.  incremented by tick().
-	uint8_t currentAnimation;
-	unsigned long frameDuration = 0;  //The duration for a particular animation.
-	unsigned long frameStartTime = 0;
 	CRC_PCA9635 ledLeft;
 	CRC_PCA9635 ledRight;
 	uint8_t buttonBrightness;
@@ -40,6 +36,7 @@ private:
 	unsigned long breathFadeTimecheck;
 	inline void setLed(CRC_PCA9635 & ledBank, uint8_t ledNum, uint8_t level);
 	void buttonBreath(unsigned long &now);
+	//void buttonHeartbeat(unsigned long &now);
 	void ledBreath(unsigned long &now);
 	
 public:
@@ -52,7 +49,6 @@ public:
 	void setRightLed(uint8_t ledNum, uint8_t level); // 0=Off, 1000 = On, between 1-256 = Level
 	void showRunwayWithDelay();
 	void showRunway2();
-	void showBreathing();
 	void showNothing();
 	void tick();  //increment state of lights
 	void setButtonLevel(uint8_t level);

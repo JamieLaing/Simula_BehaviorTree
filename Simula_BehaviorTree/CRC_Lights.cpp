@@ -12,10 +12,10 @@ See README.md for license details
 #include "CRC_Hardware.h"
 #define LIGHTS_LED_DEFINITION_COUNT     10
 
-uint8_t currentAnimation;
-const uint8_t animationNone = 0;
-const uint8_t animationBreathing = 1;
-const uint8_t animationRunwayFwd = 2;
+//uint8_t currentAnimation;
+//const uint8_t animationNone = 0;
+//const uint8_t animationBreathing = 1;
+//const uint8_t animationRunwayFwd = 2;
 
 struct LIGHTS_LED_DEFINITION {
 	boolean isLeft;
@@ -23,7 +23,6 @@ struct LIGHTS_LED_DEFINITION {
 	uint8_t idxGreen;
 	uint8_t idxBlue;
 };
-
 static const LIGHTS_LED_DEFINITION LIGHTS_LED_MAPPINGS[] = {
 	{ true, 0x02, 0x01, 0x00 }, // 0 = L1
 	{ true, 0x05, 0x04, 0x03 }, // 1 = L2
@@ -115,22 +114,23 @@ void CRC_LightsClass::init()
 {
 	ledLeft.init();
 	ledRight.init();
-	currentAnimation = animationNone;
+	//currentAnimation = animationNone;
 }
 void CRC_LightsClass::tick() {
-	//Increment state of lights
-	unsigned long now = millis();
-	switch (currentAnimation) {
-	case animationBreathing:
-		ledBreath(now);
-		buttonBreath(now);
-		break;
-	case animationRunwayFwd:
-		//animationRunwayFwd(now);
-		break;
-	default:
-		break;
-	}
+	////Increment state of lights
+	//unsigned long now = millis();
+	//switch (currentAnimation) {
+	//case animationBreathing:
+	//	ledBreath(now);
+	//	//buttonHeartbeat(now);
+	//	//buttonBreath(now);
+	//	break;
+	//case animationRunwayFwd:
+	//	//animationRunwayFwd(now);
+	//	break;
+	//default:
+	//	break;
+	//}
 }
 void CRC_LightsClass::ledBreath(unsigned long &now) {
 	if (now - breathFadeDelay > breathFadeTimecheck) {
@@ -171,18 +171,34 @@ void CRC_LightsClass::buttonBreath(unsigned long &now) {
 		}
 	}
 }
+//void CRC_LightsClass::buttonHeartbeat(unsigned long &now) {
+//	////Looking for the classic, human-style two chamber
+//	////heartbeat effect.  Also seeking to modify heartbeat
+//	////through a representation of exertion level.
+//	//uint16_t BPM = ((simulation.restingBeats * simulation.exertion) / 50) + simulation.restingBeats;
+//	//uint16_t msPerBeat = BPM * 1000 / 60;
+//	//if (now - msPerBeat > simulation.beatMsCheck)
+//	//{
+//	//	simulation.beatMsCheck = now;
+//	//	//Is it time for another beat?  I sure hope so!
+//	//	/*Serial.print("msPerBeat:");
+//	//	Serial.print(msPerBeat);
+//	//	Serial.print(" BPM:");
+//	//	Serial.println(BPM);*/
+//	//}
+//}
 void CRC_LightsClass::setButtonLevel(uint8_t level) {
 	analogWrite(hardware.pinButtonLED, level);
 }
 void CRC_LightsClass::showBreathing() {
-	currentAnimation = animationBreathing;
+	//currentAnimation = animationBreathing;
 }
 void CRC_LightsClass::showNothing() {
-	currentAnimation = animationNone;
+	// = animationNone;
 	setAllOff();
 }
 void CRC_LightsClass::showRunway2() {
-	currentAnimation = animationRunwayFwd;
+	//currentAnimation = animationRunwayFwd;
 }
 void CRC_LightsClass::showRunwayWithDelay() {
 
