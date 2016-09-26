@@ -53,6 +53,7 @@ public:
 	void showRunwayWithDelay();
 	void showRunway2();
 	void showBreathing();
+	void showNothing();
 	void tick();  //increment state of lights
 	void setButtonLevel(uint8_t level);
 	void setAllOff();

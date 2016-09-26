@@ -177,6 +177,10 @@ void CRC_LightsClass::setButtonLevel(uint8_t level) {
 void CRC_LightsClass::showBreathing() {
 	currentAnimation = animationBreathing;
 }
+void CRC_LightsClass::showNothing() {
+	currentAnimation = animationNone;
+	setAllOff();
+}
 void CRC_LightsClass::showRunway2() {
 	currentAnimation = animationRunwayFwd;
 }
