@@ -190,13 +190,6 @@ void CRC_LightsClass::buttonBreath(unsigned long &now) {
 void CRC_LightsClass::setButtonLevel(uint8_t level) {
 	analogWrite(hardware.pinButtonLED, level);
 }
-void CRC_LightsClass::showBreathing() {
-	//currentAnimation = animationBreathing;
-}
-void CRC_LightsClass::showNothing() {
-	// = animationNone;
-	setAllOff();
-}
 void CRC_LightsClass::showRunway2() {
 	//currentAnimation = animationRunwayFwd;
 }

@@ -100,8 +100,8 @@ void setup() {
 	crcLights.showRunwayWithDelay();
 
 	//MP3 Player & Amplifier
-	crcAudio.setAmpGain(1); //0 = low, 3 = high
-	crcAudio.setVolume(30, 30); //0 = loudest, 60 = softest ?
+	crcAudio.setAmpGain(0); //0 = low, 3 = high
+	crcAudio.setVolume(40, 40); //0 = loudest, 60 = softest ?
 	if (!SD.begin(hardware.sdcard_cs)) {
 		Serial.println(F("SD card init failure."));
 	}

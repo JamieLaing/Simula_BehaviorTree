@@ -10,16 +10,16 @@ See README.md for license details
 
 #include "CRC_Simulation.h"
 
-uint8_t currentAnimation;
-const uint8_t animationNone = 0;
-const uint8_t animationBio = 1;
-const uint8_t animationRunwayFwd = 2;
+
 
 CRC_SimulationClass::CRC_SimulationClass() {
 	exertion = 0;
-	restingBeats = 60;
+	restingBeats = 30;
 	beatMsCheck = 0;
-	heartbeatUnderway = false;
+	beatUnderway = false;
+	beatFlashDuration = 50;
+	buttonFadeAmount = 10;
+	buttonBrightness = 0;
 }
 void CRC_SimulationClass::tick() {
 	unsigned long now = millis();
@@ -36,20 +36,38 @@ void CRC_SimulationClass::tick() {
 	}
 }
 void CRC_SimulationClass::buttonHeartbeat(unsigned long &now) {
-	//Looking for the classic, human-style two chamber
-	//heartbeat effect.  Also seeking to modify heartbeat
-	//through a representation of exertion level.
-	uint16_t BPM = ((restingBeats * exertion) / 50) + restingBeats;
-	uint16_t msPerBeat = BPM * 1000 / 60;
+	float BPM = ((restingBeats * exertion) / 50) + restingBeats;
+	float BPS = BPM / 60;
+	float msPerBeat = 1000 / BPS;
 	if (now - msPerBeat > beatMsCheck)
 	{
 		beatMsCheck = now;
-		//Is it time for another beat?  I sure hope so!
-		Serial.print("msPerBeat:");
-		Serial.print(msPerBeat);
-		Serial.print(" BPM:");
+		buttonBrightness = 0;
+		beatUnderway = true;
+		/*Serial.print(" BPM:");
 		Serial.println(BPM);
+		Serial.print(" BPS:");
+		Serial.print(BPS);
+		Serial.print(" msBeat:");
+		Serial.println(msPerBeat);*/
 	}
+	//if (beatUnderway) {
+	//	crcLights.setButtonLevel(buttonBrightness);
+	//	Serial.print("Brightness:");
+	//	Serial.println(buttonBrightness);
+	//	buttonBrightness = buttonBrightness + buttonFadeAmount;
+	//	//if (buttonBrightness <= 0 || buttonBrightness >= 150) {
+	//	//	buttonFadeAmount = -buttonFadeAmount;
+	//	//}
+	//	if (buttonFadeAmount < 0) {
+	//		beatUnderway = false;
+	//		Serial.println("beat stopped.");
+	//	}
+	//	if (buttonBrightness >= 100 || buttonBrightness <= 0)
+	//	{
+	//		buttonFadeAmount = -buttonFadeAmount;
+	//	}
+	//}
 }
 void CRC_SimulationClass::showLedNone() {
 	crcLights.setAllOff();

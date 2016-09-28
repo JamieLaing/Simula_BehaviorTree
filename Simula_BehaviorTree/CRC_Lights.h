@@ -37,6 +37,7 @@ private:
 	inline void setLed(CRC_PCA9635 & ledBank, uint8_t ledNum, uint8_t level);
 	void buttonBreath(unsigned long &now);
 	//void buttonHeartbeat(unsigned long &now);
+	boolean allOff;
 	void ledBreath(unsigned long &now);
 	
 public:
@@ -49,12 +50,11 @@ public:
 	void setRightLed(uint8_t ledNum, uint8_t level); // 0=Off, 1000 = On, between 1-256 = Level
 	void showRunwayWithDelay();
 	void showRunway2();
-	void showNothing();
 	void tick();  //increment state of lights
 	void setButtonLevel(uint8_t level);
 	void setAllOff();
 	void setRandomColor();
-	boolean allOff;
+	
 	boolean setLed(uint8_t ledId, uint8_t red, uint8_t green, uint8_t blue);
 	boolean setLedHex(uint8_t ledId, String hexString);
 };

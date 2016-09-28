@@ -9,16 +9,23 @@
 	#include "WProgram.h"
 #endif
 
+#include "CRC_Lights.h"
+
 class CRC_SimulationClass {
 private:
 	uint8_t exertion;  //0-100 range representing exertion level.
 	uint8_t restingBeats;  //resting BPM.
 	unsigned long beatMsCheck;
-	bool heartbeatUnderway;
+	bool beatUnderway;
+	int beatFlashDuration;
 	void buttonHeartbeat(unsigned long &now);
-	uint8_t buttonBrightness;
-	uint8_t buttonFadeAmount;
+	int buttonBrightness;
+	int buttonFadeAmount;
 	uint8_t buttonFadeDelay;
+	uint8_t currentAnimation;
+	static const uint8_t animationNone = 0;
+	static const uint8_t animationBio = 1;
+	static const uint8_t animationRunwayFwd = 2;
 public:
 	CRC_SimulationClass();
 	void tick();
