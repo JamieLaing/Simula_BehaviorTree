@@ -18,10 +18,9 @@ private:
 	unsigned long beatMsCheck;
 	bool beatUnderway;
 	int beatFlashDuration;
+	uint8_t beatBrightness;
+
 	void buttonHeartbeat(unsigned long &now);
-	int buttonBrightness;
-	int buttonFadeAmount;
-	uint8_t buttonFadeDelay;
 	uint8_t currentAnimation;
 	static const uint8_t animationNone = 0;
 	static const uint8_t animationBio = 1;

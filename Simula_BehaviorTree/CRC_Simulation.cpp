@@ -14,12 +14,11 @@ See README.md for license details
 
 CRC_SimulationClass::CRC_SimulationClass() {
 	exertion = 0;
-	restingBeats = 30;
+	restingBeats = 60;
 	beatMsCheck = 0;
 	beatUnderway = false;
-	beatFlashDuration = 50;
-	buttonFadeAmount = 10;
-	buttonBrightness = 0;
+	beatFlashDuration = 150;
+	beatBrightness = 100;
 }
 void CRC_SimulationClass::tick() {
 	unsigned long now = millis();
@@ -42,32 +41,13 @@ void CRC_SimulationClass::buttonHeartbeat(unsigned long &now) {
 	if (now - msPerBeat > beatMsCheck)
 	{
 		beatMsCheck = now;
-		buttonBrightness = 0;
 		beatUnderway = true;
-		/*Serial.print(" BPM:");
-		Serial.println(BPM);
-		Serial.print(" BPS:");
-		Serial.print(BPS);
-		Serial.print(" msBeat:");
-		Serial.println(msPerBeat);*/
+		crcLights.setButtonLevel(beatBrightness);
 	}
-	//if (beatUnderway) {
-	//	crcLights.setButtonLevel(buttonBrightness);
-	//	Serial.print("Brightness:");
-	//	Serial.println(buttonBrightness);
-	//	buttonBrightness = buttonBrightness + buttonFadeAmount;
-	//	//if (buttonBrightness <= 0 || buttonBrightness >= 150) {
-	//	//	buttonFadeAmount = -buttonFadeAmount;
-	//	//}
-	//	if (buttonFadeAmount < 0) {
-	//		beatUnderway = false;
-	//		Serial.println("beat stopped.");
-	//	}
-	//	if (buttonBrightness >= 100 || buttonBrightness <= 0)
-	//	{
-	//		buttonFadeAmount = -buttonFadeAmount;
-	//	}
-	//}
+	if ((now > beatMsCheck + beatFlashDuration) && beatUnderway) {
+		crcLights.setButtonLevel(0);
+		beatUnderway = false;
+	}
 }
 void CRC_SimulationClass::showLedNone() {
 	crcLights.setAllOff();
