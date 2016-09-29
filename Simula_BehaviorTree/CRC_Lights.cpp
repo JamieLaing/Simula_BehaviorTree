@@ -12,11 +12,6 @@ See README.md for license details
 #include "CRC_Hardware.h"
 #define LIGHTS_LED_DEFINITION_COUNT     10
 
-//uint8_t currentAnimation;
-//const uint8_t animationNone = 0;
-//const uint8_t animationBreathing = 1;
-//const uint8_t animationRunwayFwd = 2;
-
 struct LIGHTS_LED_DEFINITION {
 	boolean isLeft;
 	uint8_t idxRed;
@@ -100,98 +95,15 @@ const uint8_t PROGMEM aniRunway[5][5][3]=
 CRC_LightsClass::CRC_LightsClass(uint8_t leftAddress, uint8_t rightAddress)
 	:ledLeft(leftAddress), ledRight(rightAddress)
 {
-	buttonBrightness = 0;
-	buttonFadeAmount = 1;
-	buttonFadeDelay = 35;
-	buttonFadeTimecheck = millis();
-	breathBrightness = 0;
-	breathFadeAmount = 2;
-	breathFadeDelay = 70;
-	breathFadeTimecheck = millis();
-	allOff = true;
+	allLedsOff = true;
 }
 void CRC_LightsClass::init()
 {
 	ledLeft.init();
 	ledRight.init();
-	//currentAnimation = animationNone;
 }
-void CRC_LightsClass::tick() {
-	////Increment state of lights
-	//unsigned long now = millis();
-	//switch (currentAnimation) {
-	//case animationBreathing:
-	//	ledBreath(now);
-	//	//buttonHeartbeat(now);
-	//	//buttonBreath(now);
-	//	break;
-	//case animationRunwayFwd:
-	//	//animationRunwayFwd(now);
-	//	break;
-	//default:
-	//	break;
-	//}
-}
-void CRC_LightsClass::ledBreath(unsigned long &now) {
-	if (now - breathFadeDelay > breathFadeTimecheck) {
-		breathFadeTimecheck = now;
-		
-		for (int i = 0; i < 10; i++) {
-			//crcLights.setLed(i, breathBrightness, breathBrightness, breathBrightness);
-			if (((i % 2) == 0) && (breathFadeAmount > 0))
-			{
-				crcLights.setLed(i, breathBrightness, breathBrightness, breathBrightness);
-			}
-			if (((i % 2) != 0) && (breathFadeAmount < 0))
-			{
-				crcLights.setLed(i, breathBrightness, breathBrightness, breathBrightness);
-			}
-			//Serial.print("Fade amount:");
-			//Serial.println(breathFadeAmount);
-		}
-		
-		breathBrightness = breathBrightness + breathFadeAmount;
-		if (breathBrightness <= 0 || breathBrightness >= 150) {
-			breathFadeAmount = -breathFadeAmount;
-			//turn all LEDs off
-			for (int i = 0; i < 10; i++) {
-				crcLights.setLed(i, 0, 0, 0);
-			}
-		}
-	}
-}
-void CRC_LightsClass::buttonBreath(unsigned long &now) {
-	if (now - buttonFadeDelay > buttonFadeTimecheck) {
-		buttonFadeTimecheck = now;
-		setButtonLevel(buttonBrightness);
-		buttonBrightness = buttonBrightness + buttonFadeAmount;
-		if (buttonBrightness == 0 || buttonBrightness >= 60) {
-			buttonFadeAmount = -buttonFadeAmount;
-			//Serial.println(F("Reversing button breath direction."));
-		}
-	}
-}
-//void CRC_LightsClass::buttonHeartbeat(unsigned long &now) {
-//	////Looking for the classic, human-style two chamber
-//	////heartbeat effect.  Also seeking to modify heartbeat
-//	////through a representation of exertion level.
-//	//uint16_t BPM = ((simulation.restingBeats * simulation.exertion) / 50) + simulation.restingBeats;
-//	//uint16_t msPerBeat = BPM * 1000 / 60;
-//	//if (now - msPerBeat > simulation.beatMsCheck)
-//	//{
-//	//	simulation.beatMsCheck = now;
-//	//	//Is it time for another beat?  I sure hope so!
-//	//	/*Serial.print("msPerBeat:");
-//	//	Serial.print(msPerBeat);
-//	//	Serial.print(" BPM:");
-//	//	Serial.println(BPM);*/
-//	//}
-//}
 void CRC_LightsClass::setButtonLevel(uint8_t level) {
 	analogWrite(hardware.pinButtonLED, level);
-}
-void CRC_LightsClass::showRunway2() {
-	//currentAnimation = animationRunwayFwd;
 }
 void CRC_LightsClass::showRunwayWithDelay() {
 
@@ -219,7 +131,7 @@ void CRC_LightsClass::showRunwayWithDelay() {
 	}
 }
 void CRC_LightsClass::setAllOff() {
-	if (!allOff) {
+	if (!allLedsOff) {
 		for (int i = 0; i < 10; i++) {
 			crcLights.setLed(i, 0, 0, 0);
 		}
@@ -249,7 +161,7 @@ void CRC_LightsClass::setLed(CRC_PCA9635 & ledBank, uint8_t ledNum, uint8_t leve
 	ledBank.setLed(ledNum, pgm_read_byte(&LIGHTS_LED_GAMMA[level]));
 	if (level > 0)
 	{
-		allOff = false;
+		allLedsOff = false;
 	}
 }
 void CRC_LightsClass::setLeftLed(uint8_t ledNum, uint8_t level)

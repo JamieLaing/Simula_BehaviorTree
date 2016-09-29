@@ -14,13 +14,27 @@
 class CRC_SimulationClass {
 private:
 	uint8_t exertion;  //0-100 range representing exertion level.
-	uint8_t restingBeats;  //resting BPM.
+	
+	//Beat related
+	uint8_t restingBPM;  //resting BPM.
 	unsigned long beatMsCheck;
 	bool beatUnderway;
 	int beatFlashDuration;
 	uint8_t beatBrightness;
-
 	void buttonHeartbeat(unsigned long &now);
+
+	//Breath related
+	uint8_t restingBreaths;
+	unsigned long breathsMsCheck;
+	bool breathUnderway;
+	int breathBrightness;
+	int breathFadeAmount;
+	uint8_t breathFadeDelay;
+	unsigned long breathFadeTimecheck;
+	void ledExertionBreath(unsigned long &now);
+	void ledBreath(unsigned long &now);
+
+	//Lighting animations
 	uint8_t currentAnimation;
 	static const uint8_t animationNone = 0;
 	static const uint8_t animationBio = 1;

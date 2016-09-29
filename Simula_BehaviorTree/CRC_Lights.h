@@ -25,20 +25,8 @@ class CRC_LightsClass
 private:
 	CRC_PCA9635 ledLeft;
 	CRC_PCA9635 ledRight;
-	uint8_t buttonBrightness;
-	uint8_t buttonFadeAmount;
-	uint8_t buttonFadeDelay;
-	unsigned long buttonFadeTimecheck;
-	int breathBrightness;
-	int breathFadeAmount;
-	uint8_t breathCount;
-	uint8_t breathFadeDelay;
-	unsigned long breathFadeTimecheck;
 	inline void setLed(CRC_PCA9635 & ledBank, uint8_t ledNum, uint8_t level);
-	void buttonBreath(unsigned long &now);
-	//void buttonHeartbeat(unsigned long &now);
-	boolean allOff;
-	void ledBreath(unsigned long &now);
+	boolean allLedsOff;
 	
 public:
 	CRC_LightsClass(uint8_t leftAddress, uint8_t rightAddress);
@@ -49,8 +37,6 @@ public:
 	void setLeftLed(uint8_t ledNum, uint8_t level); // 0=Off, 1000 = On, between 1-256 = Level
 	void setRightLed(uint8_t ledNum, uint8_t level); // 0=Off, 1000 = On, between 1-256 = Level
 	void showRunwayWithDelay();
-	void showRunway2();
-	void tick();  //increment state of lights
 	void setButtonLevel(uint8_t level);
 	void setAllOff();
 	void setRandomColor();
