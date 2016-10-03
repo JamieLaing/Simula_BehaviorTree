@@ -135,6 +135,7 @@ void CRC_LightsClass::setAllOff() {
 		for (int i = 0; i < 10; i++) {
 			crcLights.setLed(i, 0, 0, 0);
 		}
+		allLedsOff = true;
 	}
 }
 void CRC_LightsClass::setRandomColor(){
@@ -171,6 +172,13 @@ void CRC_LightsClass::setLeftLed(uint8_t ledNum, uint8_t level)
 void CRC_LightsClass::setRightLed(uint8_t ledNum, uint8_t level)
 {
 	setLed(ledRight, ledNum, level);
+}
+boolean CRC_LightsClass::setAllLeds(uint8_t red, uint8_t green, uint8_t blue)
+{
+	for (int i = 0; i < 10; i++) {
+		crcLights.setLed(i, red, green, blue);
+	}
+	return true;
 }
 boolean CRC_LightsClass::setLed(uint8_t ledId, uint8_t red, uint8_t green, uint8_t blue)
 {

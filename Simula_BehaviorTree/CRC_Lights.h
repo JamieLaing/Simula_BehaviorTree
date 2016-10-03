@@ -42,6 +42,7 @@ public:
 	void setRandomColor();
 	
 	boolean setLed(uint8_t ledId, uint8_t red, uint8_t green, uint8_t blue);
+	boolean setAllLeds(uint8_t red, uint8_t green, uint8_t blue);
 	boolean setLedHex(uint8_t ledId, String hexString);
 };
 

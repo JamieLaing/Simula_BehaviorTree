@@ -18,7 +18,7 @@ CRC_SimulationClass::CRC_SimulationClass() {
 	beatFlashDuration = 150;
 	beatBrightness = 100;
 
-	restingBreaths = 18; //breaths per minute;
+	restingBreaths = 16; //breaths per minute;
 	breathsMsCheck = 0;
 	breathUnderway = false;
 	breathBrightness = 0;
@@ -31,7 +31,7 @@ void CRC_SimulationClass::tick() {
 	switch (currentAnimation) {
 	case animationBio:
 		buttonHeartbeat(now);
-		ledBreath(now);
+		ledExertionBreath(now);
 		break;
 	case animationRunwayFwd:
 		//animationRunwayFwd(now);
@@ -59,12 +59,33 @@ void CRC_SimulationClass::ledExertionBreath(unsigned long &now) {
 	float breathsPM = ((restingBreaths * exertion) / 50) + restingBreaths;
 	float breathsPS = breathsPM / 60;
 	float msPerBreath = 1000 / breathsPS;
+	//const float TwoPi = 6.28319;
+	const float breathAmplitude = 125;
 	if (now - msPerBreath > breathsMsCheck)
 	{
 		breathsMsCheck = now;
 		breathUnderway = true;
+		Serial.println("breath underway.");
+		Serial.print("breaths PM");
+		Serial.println(breathsPM);
 	}
-	
+	if ((breathUnderway) && (breathBrightness < 0)) {
+		breathUnderway = false;
+		breathBrightness = 0;
+		crcLights.setAllOff();
+		Serial.println("breath finished.");
+	}
+	if ((breathUnderway) && (breathBrightness >= 0)) {
+		//Calculate breath brightness from sine wave
+		unsigned long breathTime = now - breathsMsCheck;
+		//breathBrightness = breathAmplitude * sin(msPerBreath/3 * TwoPi * breathTime);
+		breathBrightness = breathAmplitude * sin(breathsPM * TWO_PI);
+		Serial.print("breath brightness");
+		Serial.println(breathBrightness);
+		if (breathBrightness > 0) {
+			crcLights.setAllLeds(breathBrightness, breathBrightness, breathBrightness);
+		}
+	}
 }
 void CRC_SimulationClass::ledBreath(unsigned long &now) {
 	if (now - breathFadeDelay > breathFadeTimecheck) {
