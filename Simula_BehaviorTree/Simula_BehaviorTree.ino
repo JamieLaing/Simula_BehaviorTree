@@ -94,7 +94,7 @@ void setup() {
 
 	behaviorTree.setRootChild(&selector[0]);
 	selector[0].addChildren({ &buttonStop, &batteryCheck, &orientationCheck, &selector[1], &randomAction, &cruise });
-	selector[1].addChildren({ &cliffCenter, &cliffLeft, &cliffRight, &perimeterCenter, &perimeterLeft, &perimeterRight });
+	//selector[1].addChildren({ &cliffCenter, &cliffLeft, &cliffRight, &perimeterCenter, &perimeterLeft, &perimeterRight });
 
 	crcLights.setRandomColor();
 	crcLights.showRunwayWithDelay();

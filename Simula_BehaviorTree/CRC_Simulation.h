@@ -26,13 +26,9 @@ private:
 	//Breath related
 	uint8_t restingBreaths;
 	unsigned long breathsMsCheck;
-	bool breathUnderway;
 	int breathBrightness;
-	int breathFadeAmount;
-	uint8_t breathFadeDelay;
 	unsigned long breathFadeTimecheck;
 	void ledExertionBreath(unsigned long &now);
-	void ledBreath(unsigned long &now);
 
 	//Lighting animations
 	uint8_t currentAnimation;
