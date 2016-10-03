@@ -28,7 +28,7 @@ private:
 	unsigned long breathsMsCheck;
 	int breathBrightness;
 	unsigned long breathFadeTimecheck;
-	void ledExertionBreath(unsigned long &now);
+	void ledBreath(unsigned long &now);
 
 	//Lighting animations
 	uint8_t currentAnimation;
@@ -40,6 +40,7 @@ public:
 	void tick();
 	void showLedBio();
 	void showLedNone();
+	int getSineWave(float amplitude, float periodMillis, long millis);
 };
 
 extern CRC_SimulationClass simulation;
