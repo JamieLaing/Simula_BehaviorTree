@@ -15,8 +15,8 @@ Motor::Motor(int encoderPin1, int encoderPin2, int mtrEnable, int mtrIn1, int mt
 	pinMode(_mtrEnable, OUTPUT);
 	pinMode(_mtrIn1, OUTPUT);
 	pinMode(_mtrIn2, OUTPUT);
-	powerOff();
-	motorOff = true;
+	stop();
+	motorActive = false;
 
 }
 
@@ -33,21 +33,24 @@ void Motor::setPower(int power) {
 		{
 			in1 = LOW;
 			in2 = HIGH;
+			motorActive = true;
+		}
+		else {
+			motorActive = false;
 		}
 		analogWrite(_mtrEnable, abs(power));
 		digitalWrite(_mtrIn1, in1);
 		digitalWrite(_mtrIn2, in2);
-		motorOff = false;
 	}
 }
 
-void Motor::powerOff() {
-	if (!motorOff)
+void Motor::stop() {
+	if (motorActive)
 	{
 		analogWrite(_mtrEnable, 0);
 		digitalWrite(_mtrIn1, LOW);
 		digitalWrite(_mtrIn2, LOW);
-		motorOff = true;
+		motorActive = false;
 	}
 }
 
@@ -76,7 +79,7 @@ void Motor::accelerateToEncoderTarget(int32_t encoderTarget, int powerTarget) {
 	}
 	else
 	{
-		powerOff();
+		stop();
 	}
 }
 

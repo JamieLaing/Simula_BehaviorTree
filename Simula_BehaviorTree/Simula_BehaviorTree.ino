@@ -44,6 +44,8 @@ Behavior_Tree behaviorTree;
 Behavior_Tree::Selector selector[3];
 Button_Stop buttonStop;
 Battery_Check batteryCheck;
+
+Motors_Active motorsActive;
 Cliff_Center cliffCenter;
 Cliff_Left cliffLeft;
 Cliff_Right cliffRight;
@@ -90,11 +92,11 @@ void setup() {
 
 	//Check battery voltage.
 	float postVoltage = hardware.readBatteryVoltage();
-	motors.initializeMotors(&motorLeft, &motorRight);
+	motors.initialize(&motorLeft, &motorRight);
 
 	behaviorTree.setRootChild(&selector[0]);
 	selector[0].addChildren({ &buttonStop, &batteryCheck, &orientationCheck, &selector[1], &randomAction, &cruise });
-	//selector[1].addChildren({ &cliffCenter, &cliffLeft, &cliffRight, &perimeterCenter, &perimeterLeft, &perimeterRight });
+	selector[1].addChildren({ &motorsActive, &cliffCenter, &cliffLeft, &cliffRight, &perimeterCenter, &perimeterLeft, &perimeterRight });
 
 	crcLights.setRandomColor();
 	crcLights.showRunwayWithDelay();
@@ -110,13 +112,10 @@ void setup() {
 		Serial.println(F("SD card initialized."));
 		crcAudio.playRandomAudio("effects/PwrUp_", 10, ".mp3");
 	}
-	//wait for sensors to kick in.
 	Serial.println(F("Setup complete."));
-	//crcLights.showBreathing();
 }
 
 void loop() {
-	//crcLights.tick();
 	crcAudio.tick();
 	simulation.tick();
 	if (treeState.treeActive)

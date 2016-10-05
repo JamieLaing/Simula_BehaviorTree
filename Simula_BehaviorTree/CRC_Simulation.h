@@ -27,6 +27,7 @@ private:
 	uint8_t restingBreaths;
 	unsigned long breathsMsCheck;
 	int breathBrightness;
+	float breathFraction;
 	unsigned long breathFadeTimecheck;
 	void ledBreath(unsigned long &now);
 

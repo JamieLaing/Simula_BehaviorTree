@@ -19,7 +19,7 @@ private:
 	int _mtrIn1;
 	int _mtrIn2;
 	int32_t _previousPosition;
-	bool motorOff;
+	
 	unsigned long _previousRateCheckMillis;
 	const long _rateCheckInterval = 40;
 	int _stallPower;
@@ -27,8 +27,9 @@ private:
 public:
 	Motor(int encoderPin1, int encoderPin2, int mtrEnable, int mtrIn1, int mtrIn2);
 	void setPower(int power);
-	void powerOff();
+	void stop();
 	bool positionChanged();
+	bool motorActive;
 	void accelerateToEncoderTarget(int32_t encoderTarget, int powerTarget);
 	//Set encoder pulses per second
 	void setEncoderRate(int32_t pulsesPerSecond);
@@ -39,12 +40,17 @@ public:
 	Motor* motorLeft;
 	Motor* motorRight;
 	bool motorsActive = false;
-	void initializeMotors(Motor* mtrLeft, Motor* mtrRight) {
+	void initialize(Motor* mtrLeft, Motor* mtrRight) {
 		motorLeft = mtrLeft;
 		motorRight = mtrRight;
 	}
 	bool active() {
-		
+		if (motorLeft->motorActive || motorRight->motorActive) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 };
 

@@ -38,34 +38,35 @@ void CRC_SimulationClass::tick() {
 	}
 }
 void CRC_SimulationClass::buttonHeartbeat(unsigned long &now) {
-	float BPM = ((restingBPM * exertion) / 50) + restingBPM;
-	float BPS = BPM / 60;
-	float msPerBeat = 1000 / BPS;
+	float beatsPM = ((restingBPM * exertion) / 50) + restingBPM;
+	float msPerBeat = 60000 / beatsPM;
+	float beatsPerMS = beatsPM / 60000;
+	const float beatAmplitude = 64; //This number is max_brightness/2
+
 	if (now - msPerBeat > beatMsCheck)
 	{
 		beatMsCheck = now;
-		beatUnderway = true;
-		crcLights.setButtonLevel(beatBrightness);
 	}
-	if ((now > beatMsCheck + beatFlashDuration) && beatUnderway) {
-		crcLights.setButtonLevel(0);
-		beatUnderway = false;
-	}
+	unsigned long beatTime = now - beatMsCheck;
+	beatBrightness = getSineWave(beatAmplitude, beatsPerMS, beatTime);
+	crcLights.setButtonLevel(beatBrightness);
 }
 void CRC_SimulationClass::ledBreath(unsigned long &now) {
 	float breathsPM = ((restingBreaths * exertion) / 50) + restingBreaths;
 	float msPerBreath = 60000 / breathsPM;
 	float breathsPerMS = breathsPM / 60000;
-	const float breathAmplitude = 64; //This number is max_brightness/2
+	const float breathAmplitude = 50;  //this number should be 1/2 the total max value
 	
 	if (now - msPerBreath > breathsMsCheck)
 	{
 		breathsMsCheck = now;
+		crcLights.setRandomColor();
 	}
 	unsigned long breathTime = now - breathsMsCheck;
 	//breathBrightness = breathAmplitude * sin(breathsPerMS * TWO_PI * breathTime - PI / 2) + breathAmplitude;
 	breathBrightness = getSineWave(breathAmplitude, breathsPerMS, breathTime);
-	crcLights.setAllLeds(breathBrightness, breathBrightness, breathBrightness);
+	breathFraction = breathBrightness / 100.00;
+	crcLights.setAllLeds(crcLights.color_R * breathFraction, crcLights.color_G * breathFraction, crcLights.color_B * breathFraction);
 }
 void CRC_SimulationClass::showLedNone() {
 	crcLights.setAllOff();

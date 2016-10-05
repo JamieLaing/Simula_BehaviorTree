@@ -54,7 +54,16 @@ void Sensors::readIR() {
 	sensors.pingFrontCM = frontPing.readDistance();
 
 	sensors.irLeftCliff = !edgeLeft.objectDetected();
+	/*if (irLeftCliff)
+	{
+		Serial.print(F("left, batt:"));
+		Serial.println(hardware.readBatteryVoltage());
+	}*/
 	sensors.irRightCliff = !edgeRight.objectDetected();
+	/*if (irRightCliff) {
+		Serial.print(F("right, batt:"));
+		Serial.println(hardware.readBatteryVoltage());
+	}*/
 	lastIrPollSensors = millis();
 }
 

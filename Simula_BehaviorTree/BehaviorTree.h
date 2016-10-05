@@ -144,8 +144,8 @@ private:
 					if (!treeState.treeActive)
 					{
 						Serial.println(F("Behavior tree off."));
-						motors.motorLeft->powerOff();
-						motors.motorRight->powerOff();
+						motors.motorLeft->stop();
+						motors.motorRight->stop();
 						motors.motorsActive = false;
 						sensors.deactivate();
 						simulation.showLedNone();
@@ -221,6 +221,18 @@ private:
 	}
 };
 
+class Motors_Active : public Behavior_Tree::Node {
+private:
+	//Node defaults to blocking, unless motors are active.
+	bool nodeActive = true;
+	
+	virtual bool run() override {
+		if (motors.active()) {
+			nodeActive = false;
+		}
+		return nodeActive;
+	}
+};
 class Cliff_Center : public Behavior_Tree::Node {
 private:
 	bool nodeActive = false;
@@ -231,7 +243,7 @@ private:
 
 		currentTime = millis();
 
-		if(!nodeActive){
+		if (!nodeActive) {
 			if (sensors.irLeftCliff && sensors.irRightCliff) {
 				nodeActive = true;
 				Serial.println(F("Cliff center detected."));
@@ -246,8 +258,8 @@ private:
 				Serial.println(F("Cliff center complete."));
 				nodeActive = false;
 				nodeStartTime = 0;
-				motors.motorLeft->powerOff();
-				motors.motorRight->powerOff();
+				motors.motorLeft->stop();
+				motors.motorRight->stop();
 				motors.motorsActive = false;
 			}
 		}
@@ -286,8 +298,8 @@ private:
 				Serial.println(F("Cliff left stopping."));
 				nodeStartTime = 0;
 				motors.motorsActive = false;
-				motors.motorLeft->powerOff();
-				motors.motorRight->powerOff();
+				motors.motorLeft->stop();
+				motors.motorRight->stop();
 				nodeActive = false;
 				turnStarted = false;
 			}
@@ -326,8 +338,8 @@ private:
 				Serial.println(F("Cliff right stopping."));
 				nodeStartTime = 0;
 				motors.motorsActive = false;
-				motors.motorLeft->powerOff();
-				motors.motorRight->powerOff();
+				motors.motorLeft->stop();
+				motors.motorRight->stop();
 				nodeActive = false;
 				turnStarted = false;
 			}
@@ -373,8 +385,8 @@ private:
 		else {
 			if ((nodeStartTime + duration < currentTime) && (sensors.irFrontCM >= alarmCM)) {
 				Serial.println(F("Perimeter center complete."));
-				motors.motorLeft->powerOff();
-				motors.motorRight->powerOff();
+				motors.motorLeft->stop();
+				motors.motorRight->stop();
 				motors.motorsActive = false;
 				nodeStartTime = 0;
 				nodeActive = false;
@@ -406,8 +418,8 @@ private:
 		else {
 			if ((nodeStartTime + duration < currentTime) && sensors.irLeftFrontCM >= alarmCM) {
 				Serial.println(F("Perimeter left front complete."));
-				motors.motorLeft->powerOff();
-				motors.motorRight->powerOff();
+				motors.motorLeft->stop();
+				motors.motorRight->stop();
 				motors.motorsActive = false;
 				nodeStartTime = 0;
 				nodeActive = false;
@@ -439,8 +451,8 @@ private:
 		else {
 			if ((nodeStartTime + duration < currentTime) && sensors.irRightFrontCM >= alarmCM) {
 				Serial.println(F("Perimeter right front complete."));
-				motors.motorLeft->powerOff();
-				motors.motorRight->powerOff();
+				motors.motorLeft->stop();
+				motors.motorRight->stop();
 				motors.motorsActive = false;
 				nodeStartTime = 0;
 				nodeActive = false;
@@ -476,8 +488,8 @@ private:
 					nodeActive = true;
 					nodeStartTime = currentTime;
 					Serial.println(F("Doing nothing."));
-					motors.motorLeft->powerOff();
-					motors.motorRight->powerOff();
+					motors.motorLeft->stop();
+					motors.motorRight->stop();
 					motors.motorsActive = false;
 				}
 			}
