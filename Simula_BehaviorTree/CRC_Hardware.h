@@ -104,6 +104,7 @@ public:
 	void seedRandomGenerator();
 	float readBatteryVoltage();
 	int getRandomNumberInRange(int lowest, int highest);
+	bool sdInitialized;
 private:
 	void setupPins();
 	void setupI2C();

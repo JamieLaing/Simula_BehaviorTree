@@ -262,7 +262,6 @@ void CRC_AudioManagerClass::playRandomAudio(String fileBase, int fileCount, Stri
 	int randomFile = random(1, fileCount + 1);
 	String fileNumber = formatLeadingZero(randomFile);
 	String filename = fileBase + fileNumber + fileSuffix;
-	//Serial.println(filename);
 	crcAudio.startAudioFile(filename.c_str());
 }
 String CRC_AudioManagerClass::formatLeadingZero(int value) {

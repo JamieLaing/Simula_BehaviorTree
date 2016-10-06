@@ -54,6 +54,7 @@ public:
 	bool active() {
 		if (motorLeft->motorActive || motorRight->motorActive) {
 			return true;
+			Serial.println("motors active.");
 		}
 		else {
 			return false;

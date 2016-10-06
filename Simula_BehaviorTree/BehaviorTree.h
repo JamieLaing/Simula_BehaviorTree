@@ -203,7 +203,7 @@ private:
 		currentTime = millis();
 
 		if (!nodeActive) {
-			if (sensors.irLeftCliff && sensors.irRightCliff) {
+			if (sensors.irLeftCliff && sensors.irRightCliff && motors.active()) {
 				nodeActive = true;
 				Serial.println(F("Cliff center detected."));
 				nodeStartTime = currentTime;
@@ -235,7 +235,7 @@ private:
 		currentTime = millis();
 
 		if (!nodeActive) {
-			if (sensors.irLeftCliff && !sensors.irRightCliff) {
+			if (sensors.irLeftCliff && !sensors.irRightCliff && motors.active()) {
 				Serial.println(F("Cliff left detected."));
 				nodeStartTime = currentTime;
 				nodeActive = true;
@@ -271,7 +271,7 @@ private:
 
 		currentTime = millis();
 		if (!nodeActive) {
-			if (!sensors.irLeftCliff && sensors.irRightCliff) {
+			if (!sensors.irLeftCliff && sensors.irRightCliff && motors.active()) {
 				Serial.println(F("Cliff right detected."));
 				nodeStartTime = currentTime;
 				nodeActive = true;

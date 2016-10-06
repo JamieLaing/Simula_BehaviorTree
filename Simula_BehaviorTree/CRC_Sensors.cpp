@@ -53,17 +53,10 @@ void Sensors::readIR() {
 	sensors.irRightCM = perimRight.readDistance();
 	sensors.pingFrontCM = frontPing.readDistance();
 
+	//If there is no object detected, then we MAY have a cliff.
 	sensors.irLeftCliff = !edgeLeft.objectDetected();
-	/*if (irLeftCliff)
-	{
-		Serial.print(F("left, batt:"));
-		Serial.println(hardware.readBatteryVoltage());
-	}*/
 	sensors.irRightCliff = !edgeRight.objectDetected();
-	/*if (irRightCliff) {
-		Serial.print(F("right, batt:"));
-		Serial.println(hardware.readBatteryVoltage());
-	}*/
+	
 	lastIrPollSensors = millis();
 }
 

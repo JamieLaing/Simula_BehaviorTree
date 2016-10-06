@@ -126,9 +126,7 @@ void CRC_LightsClass::showRunwayWithDelay() {
 		}
 	}
 
-	for (int i = 0; i < 10; i++) {
-		crcLights.setLed(i, 0, 0, 0);
-	}
+	setAllOff();
 }
 void CRC_LightsClass::setAllOff() {
 	if (!allLedsOff) {

@@ -56,9 +56,43 @@ Random_Action randomAction;
 Orientation_Check orientationCheck;
 
 void setup() {
-	
 	Serial.begin(115200);
 	Serial.println(F("Booting."));
+
+	initializeSystem();
+	behaviorTree.setRootChild(&selector[0]);
+	selector[0].addChildren({ &buttonStop, &batteryCheck, &orientationCheck, &selector[1], &randomAction, &cruise });
+	selector[1].addChildren({ &cliffCenter, &cliffLeft, &cliffRight, &perimeterCenter, &perimeterLeft, &perimeterRight });
+
+	crcLights.setRandomColor();
+	crcLights.showRunwayWithDelay();
+	//MP3 Player & Amplifier
+	crcAudio.setAmpGain(1); //0 = low, 3 = high
+	crcAudio.setVolume(40, 40); //0 = loudest, 60 = softest ?
+	
+	if (hardware.sdInitialized) {
+		crcAudio.playRandomAudio("effects/PwrUp_", 10, ".mp3");
+	}
+	Serial.println(F("Setup complete."));
+}
+
+void loop() {
+	crcAudio.tick();
+	simulation.tick();
+	if (treeState.treeActive)
+	{
+		sensors.lsm.read();
+		if (!sensors.irReadingUpdated()) {
+			sensors.readIR();
+		}
+	}
+	
+	if (!behaviorTree.run()) {
+		Serial.println(F("All tree nodes returned false."));
+	}
+}
+
+void initializeSystem() {
 	sensors.init();
 	Serial.println(F("LSM instantiated."));
 	hardware.init();
@@ -93,40 +127,14 @@ void setup() {
 	float postVoltage = hardware.readBatteryVoltage();
 	motors.initialize(&motorLeft, &motorRight);
 
-	behaviorTree.setRootChild(&selector[0]);
-	selector[0].addChildren({ &buttonStop, &batteryCheck, &orientationCheck, &selector[1], &randomAction, &cruise });
-	selector[1].addChildren({ &cliffCenter, &cliffLeft, &cliffRight, &perimeterCenter, &perimeterLeft, &perimeterRight });
-
-	crcLights.setRandomColor();
-	crcLights.showRunwayWithDelay();
-
-	//MP3 Player & Amplifier
-	crcAudio.setAmpGain(1); //0 = low, 3 = high
-	crcAudio.setVolume(40, 40); //0 = loudest, 60 = softest ?
 	if (!SD.begin(hardware.sdcard_cs)) {
 		Serial.println(F("SD card init failure."));
+		hardware.sdInitialized = false;
 	}
 	else
 	{
 		Serial.println(F("SD card initialized."));
-		crcAudio.playRandomAudio("effects/PwrUp_", 10, ".mp3");
-	}
-	Serial.println(F("Setup complete."));
-}
-
-void loop() {
-	crcAudio.tick();
-	simulation.tick();
-	if (treeState.treeActive)
-	{
-		sensors.lsm.read();
-		if (!sensors.irReadingUpdated()) {
-			sensors.readIR();
-		}
-	}
-	
-	if (!behaviorTree.run()) {
-		Serial.println(F("All tree nodes returned false."));
+		hardware.sdInitialized = true;
 	}
 }
 
