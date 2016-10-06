@@ -124,7 +124,7 @@ private:
 					else {
 						Serial.println(F("Activating behavior tree."));
 						sensors.activate();
-						//simulation.showLedBio();
+						simulation.showLedBio();
 						delay(50);
 						//return true to allow sensors to read before next tree loop.
 						return true;

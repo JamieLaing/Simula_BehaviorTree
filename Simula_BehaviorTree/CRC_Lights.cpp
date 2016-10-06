@@ -140,12 +140,6 @@ void CRC_LightsClass::setRandomColor(){
 	color_R = hardware.getRandomNumberInRange(0, 255);
 	color_G = hardware.getRandomNumberInRange(0, 255);
 	color_B = hardware.getRandomNumberInRange(0, 255);
-	/*Serial.print("R:");
-	Serial.println(color_R);
-	Serial.print("G:");
-	Serial.println(color_G);
-	Serial.print("B:");
-	Serial.println(color_B);*/
 }
 
 /*
