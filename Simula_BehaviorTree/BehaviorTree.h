@@ -179,12 +179,12 @@ private:
 				float postVoltage = hardware.readBatteryVoltage();
 				if (postVoltage < hardware.lowBatteryVoltage) {
 					nodeActive = true;
+					Serial.print(F("Batteries low. Measurement: "));
+					Serial.println(postVoltage);
+					Serial.print(F("below threshold of: "));
+					Serial.println(hardware.lowBatteryVoltage);
 				}
 			}
-		}
-		else
-		{
-			Serial.println(F("Batteries low."));
 		}
 		return nodeActive;
 	}
