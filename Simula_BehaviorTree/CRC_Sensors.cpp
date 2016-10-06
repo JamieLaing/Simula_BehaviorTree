@@ -2,11 +2,15 @@
 // 
 // 
 
-#include "Sensor_State.h"
+#include "CRC_Sensors.h"
 #include "IR_BinaryDistance.h"
 #include "IR_AnalogDistance.h"
 #include "PingDistance.h"
 #include "CRC_Hardware.h"
+
+void Sensors::init() {
+	lsm = Adafruit_LSM9DS0();
+}
 
 void Sensors::activate() {
 	//Activate sensors
@@ -42,15 +46,24 @@ void Sensors::readIR() {
 	IR_AnalogDistance perimRight = IR_AnalogDistance(hardware.pinActPerim4, hardware.pinPerim4);
 	PingDistance frontPing = PingDistance(hardware.pinPingTrigger, hardware.pinPingEcho);
 
-	unitState.irLeftCM = perimLeft.readDistance();
-	unitState.irLeftFrontCM = perimLeftFront.readDistance();
-	unitState.irFrontCM = perimFront.readDistance();
-	unitState.irRightFrontCM = perimRightFront.readDistance();
-	unitState.irRightCM = perimRight.readDistance();
-	unitState.pingFrontCM = frontPing.readDistance();
+	sensors.irLeftCM = perimLeft.readDistance();
+	sensors.irLeftFrontCM = perimLeftFront.readDistance();
+	sensors.irFrontCM = perimFront.readDistance();
+	sensors.irRightFrontCM = perimRightFront.readDistance();
+	sensors.irRightCM = perimRight.readDistance();
+	sensors.pingFrontCM = frontPing.readDistance();
 
-	unitState.irLeftCliff = !edgeLeft.objectDetected();
-	unitState.irRightCliff = !edgeRight.objectDetected();
+	sensors.irLeftCliff = !edgeLeft.objectDetected();
+	/*if (irLeftCliff)
+	{
+		Serial.print(F("left, batt:"));
+		Serial.println(hardware.readBatteryVoltage());
+	}*/
+	sensors.irRightCliff = !edgeRight.objectDetected();
+	/*if (irRightCliff) {
+		Serial.print(F("right, batt:"));
+		Serial.println(hardware.readBatteryVoltage());
+	}*/
 	lastIrPollSensors = millis();
 }
 

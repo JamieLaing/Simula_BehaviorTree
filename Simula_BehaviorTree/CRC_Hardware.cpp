@@ -15,12 +15,11 @@ See README.md for license details
 #include <Wire.h>
 
 #include "CRC_Hardware.h"
-#include "Sensor_State.h"
-
+#include "CRC_Sensors.h"
 
 void CRC_HardwareClass::init() {
+	seedRandomGenerator();
 	setupPins();
-	randomSeed(analogRead(A3));  //Get voltage reading from an unused pin.
 	setupSPI();
 	setupI2C();
 }
@@ -50,7 +49,7 @@ void CRC_HardwareClass::setupPins()
 	digitalWrite(pinAmpEnable, LOW);
 
 	// 
-	pinMode(pinLED, OUTPUT);
+	pinMode(pinButtonLED, OUTPUT);
 	pinMode(pinButton, INPUT_PULLUP);
 
 	// Motor Pins
@@ -94,14 +93,38 @@ void CRC_HardwareClass::startScanStatus(unsigned long startTime)
 	// Keep this block as is at start of this method
 	extern int __heap_start, *__brkval;
 	int v;
-	unitState.freeRam = (uint16_t)(&v - (__brkval == 0 ? (uint16_t)&__heap_start : (uint16_t)__brkval));
+	hardwareState.freeRam = (uint16_t)(&v - (__brkval == 0 ? (uint16_t)&__heap_start : (uint16_t)__brkval));
 	// Scan Free Ram END
 };
 void CRC_HardwareClass::endScanStatus(unsigned long startTime)
 {
 	unsigned long endTime = millis();
 	unsigned long loopTime = endTime - startTime;
-	unitState.loopLastTimeMillis = loopTime; // Last Time in millis
-	unitState.loopMinTimeMillis = min(unitState.loopMinTimeMillis + 1, loopTime);  // Min Time in millis
-	unitState.loopMaxTimeMillis = max(unitState.loopMaxTimeMillis, loopTime);  // Max Time in millis
+	hardwareState.loopLastTimeMillis = loopTime; // Last Time in millis
+	hardwareState.loopMinTimeMillis = min(hardwareState.loopMinTimeMillis + 1, loopTime);  // Min Time in millis
+	hardwareState.loopMaxTimeMillis = max(hardwareState.loopMaxTimeMillis, loopTime);  // Max Time in millis
+}
+void CRC_HardwareClass::seedRandomGenerator() {
+	randomSeed(analogRead(A3));  //Get voltage reading from an unused pin.
+}
+float CRC_HardwareClass::readBatteryVoltage() {
+	int preVoltage = analogRead(hardware.pinBatt);
+	//Standard resistive voltage divider.
+	//In Mainboard v3.05 and up, the resistors are both 10K, 
+	//so we multiply by two.
+	//Also, 6 freshly charged Amazon black NiMH batteries
+	//measure in at 8.56 volts.
+	float postVoltage = (preVoltage * (5.00 / 1023.00) * 2);
+	Serial.print(F("Battery voltage: "));
+	Serial.println(postVoltage);
+	if (postVoltage < hardware.lowBatteryVoltage) {
+		Serial.print(F("Voltage below low battery setting of "));
+		Serial.print(hardware.lowBatteryVoltage);
+		Serial.println(F(" volts."));
+	}
+	return postVoltage;
+}
+int CRC_HardwareClass::getRandomNumberInRange(int lowest, int highest) {
+	seedRandomGenerator();
+	return random(lowest, highest + 1);
 }

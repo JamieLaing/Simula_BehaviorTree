@@ -1,5 +1,5 @@
 /***************************************************
-Uses: Provides higher level functions to Control the LED outputs
+Uses: Provides higher level functions to control Simula's LEDs.
 
 This file is designed for the Simula project by Chicago Robotics Corp.
 http://www.chicagorobotics.net/products
@@ -9,6 +9,8 @@ See README.md for license details
 ****************************************************/
 
 #include "CRC_Lights.h"
+#include "CRC_Hardware.h"
+#define LIGHTS_LED_DEFINITION_COUNT     10
 
 struct LIGHTS_LED_DEFINITION {
 	boolean isLeft;
@@ -16,7 +18,6 @@ struct LIGHTS_LED_DEFINITION {
 	uint8_t idxGreen;
 	uint8_t idxBlue;
 };
-
 static const LIGHTS_LED_DEFINITION LIGHTS_LED_MAPPINGS[] = {
 	{ true, 0x02, 0x01, 0x00 }, // 0 = L1
 	{ true, 0x05, 0x04, 0x03 }, // 1 = L2
@@ -30,8 +31,6 @@ static const LIGHTS_LED_DEFINITION LIGHTS_LED_MAPPINGS[] = {
 	{ false, 0x0B, 0x0A, 0x09 }, // 8 = R4
 	{ false, 0x0E, 0x0D, 0x0C }  // 9 = R5
 };
-
-#define LIGHTS_LED_DEFINITION_COUNT     10
 
 // Gamma Correction for RGB Linear Value
 const uint8_t PROGMEM LIGHTS_LED_GAMMA[] =
@@ -54,15 +53,101 @@ const uint8_t PROGMEM LIGHTS_LED_GAMMA[] =
 	215,218,220,223,225,228,231,233,236,239,241,244,247,249,252,255
 };
 
+const uint8_t PROGMEM aniRunway[5][5][3]= 
+{
+	{ //this means led 10 and 5 are on, the rest are off.
+		{ 10, 5, 1 },
+		{ 9, 4, 0 },
+		{ 8, 3, 0 },
+		{ 7, 2, 0 },
+		{ 6, 1, 0 }
+	},
+	{ //led 9 and 4 are on, the rest are off, etc.
+		{ 10, 5, 0 },
+		{ 9, 4, 1 },
+		{ 8, 3, 0 },
+		{ 7, 2, 0 },
+		{ 6, 1, 0 }
+	},
+	{
+		{ 10, 5, 0 },
+		{ 9, 4, 0 },
+		{ 8, 3, 1 },
+		{ 7, 2, 0 },
+		{ 6, 1, 0 }
+	},
+	{
+		{ 10, 5, 0 },
+		{ 9, 4, 0 },
+		{ 8, 3, 0 },
+		{ 7, 2, 1 },
+		{ 6, 1, 0 }
+	},
+	{
+		{ 10, 5, 0 },
+		{ 9, 4, 0 },
+		{ 8, 3, 0 },
+		{ 7, 2, 0 },
+		{ 6, 1, 1 }
+	}
+};
+
 CRC_LightsClass::CRC_LightsClass(uint8_t leftAddress, uint8_t rightAddress)
 	:ledLeft(leftAddress), ledRight(rightAddress)
 {
+	allLedsOff = true;
 }
-
 void CRC_LightsClass::init()
 {
 	ledLeft.init();
 	ledRight.init();
+}
+void CRC_LightsClass::setButtonLevel(uint8_t level) {
+	analogWrite(hardware.pinButtonLED, level);
+}
+void CRC_LightsClass::showRunwayWithDelay() {
+
+	for (int i = 0; i < 10; i++) {
+		crcLights.setLed(i, 0, 0, 0);
+	}
+
+	for (int k = 0; k < 5; k++) {
+		for (int j = 10; j > 4; j--) {
+			for (int i = 0; i < 10; i++) {
+				crcLights.setLed(i, 0, 0, 0);
+			}
+
+			crcLights.setLed(j, color_R, color_G, color_B);
+			crcLights.setLed(j - 5, color_R, color_G, color_B);
+
+			/*crcLights.setLed(j, 255, 0, 0);
+			crcLights.setLed(j - 5, 255, 0, 0);*/
+			delay(10);
+		}
+	}
+
+	for (int i = 0; i < 10; i++) {
+		crcLights.setLed(i, 0, 0, 0);
+	}
+}
+void CRC_LightsClass::setAllOff() {
+	if (!allLedsOff) {
+		for (int i = 0; i < 10; i++) {
+			crcLights.setLed(i, 0, 0, 0);
+		}
+		allLedsOff = true;
+	}
+}
+void CRC_LightsClass::setRandomColor(){
+	color_R = hardware.getRandomNumberInRange(0, 255);
+	color_G = hardware.getRandomNumberInRange(0, 255);
+	color_B = hardware.getRandomNumberInRange(0, 255);
+	/*Serial.print("R:");
+	Serial.println(color_R);
+	Serial.print("G:");
+	Serial.println(color_G);
+	Serial.print("B:");
+	Serial.println(color_B);*/
 }
 
 /*
@@ -75,18 +160,26 @@ void CRC_LightsClass::init()
 void CRC_LightsClass::setLed(CRC_PCA9635 & ledBank, uint8_t ledNum, uint8_t level)
 {
 	ledBank.setLed(ledNum, pgm_read_byte(&LIGHTS_LED_GAMMA[level]));
+	if (level > 0)
+	{
+		allLedsOff = false;
+	}
 }
-
 void CRC_LightsClass::setLeftLed(uint8_t ledNum, uint8_t level)
 {
 	setLed(ledLeft, ledNum, level);
 }
-
 void CRC_LightsClass::setRightLed(uint8_t ledNum, uint8_t level)
 {
 	setLed(ledRight, ledNum, level);
 }
-
+boolean CRC_LightsClass::setAllLeds(uint8_t red, uint8_t green, uint8_t blue)
+{
+	for (int i = 0; i < 10; i++) {
+		crcLights.setLed(i, red, green, blue);
+	}
+	return true;
+}
 boolean CRC_LightsClass::setLed(uint8_t ledId, uint8_t red, uint8_t green, uint8_t blue)
 {
 	if (ledId >= LIGHTS_LED_DEFINITION_COUNT) {
@@ -108,7 +201,6 @@ boolean CRC_LightsClass::setLed(uint8_t ledId, uint8_t red, uint8_t green, uint8
 
 	return true;
 }
-
 boolean CRC_LightsClass::setLedHex(uint8_t ledId, String hexString) {
 	
 	long number = strtol(&hexString[1], NULL, 16);
@@ -121,48 +213,3 @@ boolean CRC_LightsClass::setLedHex(uint8_t ledId, String hexString) {
 	return true;
 }
 
-void CRC_LightsClass::showRunway() {
-	//crcLights.setLeftLed(0, 255);
-	//crcLights.setLeftLed(1, 255);
-	//crcLights.setLeftLed(2, 255);
-	//for (int i = 0; i < 10; i++) {
-	//	//crcLights.setLed(i, 0x4B, 0x00, 0x82);
-	//	crcLights.setLedHex(i, "#FFA500");
-	//}
-	//delay(2000);
-
-	/*for (int l = 0; l < 2; l++) {
-	for (int i = 0; i < 5; i++) {
-	crcLights.setLed(i, 255, 0, 0);
-	}
-	for (int i = 6; i < 10; i++) {
-	crcLights.setLed(i, 0, 0, 255);
-	}
-	delay(500);
-	for (int i = 0; i < 5; i++) {
-	crcLights.setLed(i, 0, 0, 255);
-	}
-	for (int i = 6; i < 10; i++) {
-	crcLights.setLed(i, 255, 0, 0);
-	}
-	delay(500);
-	}*/
-	for (int i = 0; i < 10; i++) {
-		crcLights.setLed(i, 0, 0, 0);
-	}
-
-	for (int k = 0; k < 5; k++) {
-		for (int j = 10; j > 4; j--) {
-			for (int i = 0; i < 10; i++) {
-				crcLights.setLed(i, 0, 0, 0);
-			}
-			crcLights.setLed(j, 255, 0, 0);
-			crcLights.setLed(j - 5, 255, 0, 0);
-			delay(10);
-		}
-	}
-
-	for (int i = 0; i < 10; i++) {
-		crcLights.setLed(i, 0, 0, 0);
-	}
-}

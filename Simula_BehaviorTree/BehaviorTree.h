@@ -10,13 +10,19 @@
 #endif
 
 #include "Motor.h"
-#include "Sensor_State.h"
+#include "CRC_Sensors.h"
 #include "CRC_AudioManager.h"
+#include "CRC_Lights.h"
 #include <StandardCplusplus.h>
 #include <list>
 #include <vector>
 #include <initializer_list>
 #include <algorithm>
+
+struct TREE_STATE {
+	bool treeActive = false;
+};
+extern struct TREE_STATE treeState;
 
 class Behavior_Tree {  // Note:  A proper copy constructor and assignment operator should be defined, since the implicit ones use shallow copies only.
 private:
@@ -91,17 +97,6 @@ public:
 	void setRootChild(Node* rootChild) const { root->setChild(rootChild); }
 	bool run() const { return root->run(); }
 };
-
-struct Emotional_State {
-	int fear;
-	int sadness;
-	int surprise;
-	int happiness;
-	int anger;
-	int pain;
-};
-extern struct Emotional_State emotionState;
-
 class Action : public Behavior_Tree::Node {
 private:
 	String name;
@@ -127,13 +122,16 @@ private:
 };
 class Button_Stop : public Behavior_Tree::Node {
 private:
-	String name = "Button";
-	bool buttonState = false;
+	bool buttonState = true;
 	int lastButtonState = HIGH;
 	unsigned long debounceTime;
 	const long debounceDelay = 10;
 	virtual bool run() override {
 		int reading = digitalRead(hardware.pinButton);
+		/*Serial.print("reading:");
+		Serial.println(reading);
+		Serial.print("lastButtonState:");
+		Serial.println(lastButtonState);*/
 		if (reading != lastButtonState) {
 			debounceTime = millis();
 		}
@@ -142,18 +140,20 @@ private:
 			if (reading != buttonState) {
 				buttonState = reading;
 				if (buttonState == HIGH) {
-					unitState.buttonPressed = !unitState.buttonPressed;
-					if (unitState.buttonPressed)
+					treeState.treeActive = !treeState.treeActive;
+					if (!treeState.treeActive)
 					{
-						Serial.println(F("Autonomous mode off."));
-						motors.motorLeft->powerOff();
-						motors.motorRight->powerOff();
+						Serial.println(F("Behavior tree off."));
+						motors.motorLeft->stop();
+						motors.motorRight->stop();
 						motors.motorsActive = false;
 						sensors.deactivate();
+						simulation.showLedNone();
 					}
 					else {
 						Serial.println(F("Activating behavior tree."));
 						sensors.activate();
+						simulation.showLedBio();
 						delay(50);
 						//return true to allow sensors to read before next tree loop.
 						return true;
@@ -162,7 +162,7 @@ private:
 			}
 		}
 		lastButtonState = reading;
-		return unitState.buttonPressed;
+		return !treeState.treeActive;
 	}
 };
 class Battery_Check : public Behavior_Tree::Node {
@@ -171,17 +171,12 @@ private:
 	unsigned long now;
 	unsigned long lastCheck = 0;
 	int interval = 10000;
-
 	virtual bool run() override {
 		now = millis();
 		if (!nodeActive) {
 			if ((lastCheck == 0) || (now > lastCheck + interval)) {
 				lastCheck = now;
-				int preVoltage = analogRead(hardware.pinBatt);
-				//Standard voltage divider, with a 0.70 volt constant added to match measurements.
-				float postVoltage = (preVoltage * (5.00 / 1023.00) * 2) + 0.70;
-				Serial.print(F("Battery voltage: "));
-				Serial.println(postVoltage);
+				float postVoltage = hardware.readBatteryVoltage();
 				if (postVoltage < hardware.lowBatteryVoltage) {
 					nodeActive = true;
 				}
@@ -203,11 +198,9 @@ private:
 
 
 		if (sensors.lsm.accelData.z < Z_Orient_Min) {
-			String filename = "emotions/scare_0" + String(random(1, 10)) + ".mp3";
-			crcAudio.startAudioFile(filename.c_str());
-			//crcAudio.startAudioFile("effects/pwrup_02.mp3");
-			Serial.print("Z: ");
-			Serial.println(sensors.lsm.accelData.z);
+			crcAudio.playRandomAudio("emotions/scare_", 9, ".mp3");
+			//Serial.print("Z: ");
+			//Serial.println(sensors.lsm.accelData.z);
 			nodeActive = true;
 		}
 		else {
@@ -228,19 +221,30 @@ private:
 	}
 };
 
+class Motors_Active : public Behavior_Tree::Node {
+private:
+	//Node defaults to blocking, unless motors are active.
+	bool nodeActive = true;
+	
+	virtual bool run() override {
+		if (motors.active()) {
+			nodeActive = false;
+		}
+		return nodeActive;
+	}
+};
 class Cliff_Center : public Behavior_Tree::Node {
 private:
 	bool nodeActive = false;
 	const long duration = 200;
 	unsigned long currentTime;
 	unsigned long nodeStartTime = 0;
-	
 	virtual bool run() override {
 
 		currentTime = millis();
 
-		if(!nodeActive){
-			if (unitState.irLeftCliff && unitState.irRightCliff) {
+		if (!nodeActive) {
+			if (sensors.irLeftCliff && sensors.irRightCliff) {
 				nodeActive = true;
 				Serial.println(F("Cliff center detected."));
 				nodeStartTime = currentTime;
@@ -250,12 +254,12 @@ private:
 		}
 		else
 		{
-			if ((nodeStartTime + duration < currentTime) && (!unitState.irLeftCliff && !unitState.irRightCliff)) {
+			if ((nodeStartTime + duration < currentTime) && (!sensors.irLeftCliff && !sensors.irRightCliff)) {
 				Serial.println(F("Cliff center complete."));
 				nodeActive = false;
 				nodeStartTime = 0;
-				motors.motorLeft->powerOff();
-				motors.motorRight->powerOff();
+				motors.motorLeft->stop();
+				motors.motorRight->stop();
 				motors.motorsActive = false;
 			}
 		}
@@ -270,13 +274,12 @@ private:
 	unsigned long currentTime;
 	unsigned long nodeStartTime = 0;
 	bool turnStarted = false;
-	
 	virtual bool run() override {
 
 		currentTime = millis();
 
 		if (!nodeActive) {
-			if (unitState.irLeftCliff && !unitState.irRightCliff) {
+			if (sensors.irLeftCliff && !sensors.irRightCliff) {
 				Serial.println(F("Cliff left detected."));
 				nodeStartTime = currentTime;
 				nodeActive = true;
@@ -295,8 +298,8 @@ private:
 				Serial.println(F("Cliff left stopping."));
 				nodeStartTime = 0;
 				motors.motorsActive = false;
-				motors.motorLeft->powerOff();
-				motors.motorRight->powerOff();
+				motors.motorLeft->stop();
+				motors.motorRight->stop();
 				nodeActive = false;
 				turnStarted = false;
 			}
@@ -312,13 +315,11 @@ private:
 	unsigned long currentTime;
 	unsigned long nodeStartTime = 0;
 	bool turnStarted = false;
-
 	virtual bool run() override {
 
 		currentTime = millis();
-
 		if (!nodeActive) {
-			if (!unitState.irLeftCliff && unitState.irRightCliff) {
+			if (!sensors.irLeftCliff && sensors.irRightCliff) {
 				Serial.println(F("Cliff right detected."));
 				nodeStartTime = currentTime;
 				nodeActive = true;
@@ -337,8 +338,8 @@ private:
 				Serial.println(F("Cliff right stopping."));
 				nodeStartTime = 0;
 				motors.motorsActive = false;
-				motors.motorLeft->powerOff();
-				motors.motorRight->powerOff();
+				motors.motorLeft->stop();
+				motors.motorRight->stop();
 				nodeActive = false;
 				turnStarted = false;
 			}
@@ -354,15 +355,14 @@ private:
 	const long duration = 200;
 	unsigned long currentTime;
 	unsigned long nodeStartTime = 0;
-	
 	virtual bool run() override {
 		currentTime = millis();
 		if (!nodeActive) {
-			if (unitState.irFrontCM < alarmCM && unitState.irFrontCM > hardware.irMinimumCM) {
+			if (sensors.irFrontCM < alarmCM && sensors.irFrontCM > hardware.irMinimumCM) {
 				nodeStartTime = currentTime;
 				nodeActive = true;
 				Serial.print(F("Permimeter center alarm: "));
-				Serial.println(unitState.irFrontCM);
+				Serial.println(sensors.irFrontCM);
 				//50% chance of turning either directon
 				long randNum = random(1, 101);
 
@@ -383,10 +383,10 @@ private:
 			}
 		}
 		else {
-			if ((nodeStartTime + duration < currentTime) && (unitState.irFrontCM >= alarmCM)) {
+			if ((nodeStartTime + duration < currentTime) && (sensors.irFrontCM >= alarmCM)) {
 				Serial.println(F("Perimeter center complete."));
-				motors.motorLeft->powerOff();
-				motors.motorRight->powerOff();
+				motors.motorLeft->stop();
+				motors.motorRight->stop();
 				motors.motorsActive = false;
 				nodeStartTime = 0;
 				nodeActive = false;
@@ -402,25 +402,24 @@ private:
 	const long duration = 200;
 	unsigned long currentTime;
 	unsigned long nodeStartTime = 0;
-
 	virtual bool run() override {
 		currentTime = millis();
 		if (!nodeActive) {
-			if (unitState.irLeftFrontCM < alarmCM && unitState.irLeftFrontCM > hardware.irMinimumCM) {
+			if (sensors.irLeftFrontCM < alarmCM && sensors.irLeftFrontCM > hardware.irMinimumCM) {
 				nodeStartTime = currentTime;
 				nodeActive = true;
 				Serial.print(F("Permimeter left front alarm: "));
-				Serial.println(unitState.irLeftFrontCM);
+				Serial.println(sensors.irLeftFrontCM);
 				motors.motorLeft->setPower(160);
 				motors.motorRight->setPower(-160);
 				motors.motorsActive = true;
 			}
 		}
 		else {
-			if ((nodeStartTime + duration < currentTime) && unitState.irLeftFrontCM >= alarmCM) {
+			if ((nodeStartTime + duration < currentTime) && sensors.irLeftFrontCM >= alarmCM) {
 				Serial.println(F("Perimeter left front complete."));
-				motors.motorLeft->powerOff();
-				motors.motorRight->powerOff();
+				motors.motorLeft->stop();
+				motors.motorRight->stop();
 				motors.motorsActive = false;
 				nodeStartTime = 0;
 				nodeActive = false;
@@ -436,25 +435,24 @@ private:
 	const long duration = 200;
 	unsigned long currentTime;
 	unsigned long nodeStartTime = 0;
-
 	virtual bool run() override {
 		currentTime = millis();
 		if (!nodeActive) {
-			if (unitState.irRightFrontCM < alarmCM && unitState.irRightFrontCM > hardware.irMinimumCM) {
+			if (sensors.irRightFrontCM < alarmCM && sensors.irRightFrontCM > hardware.irMinimumCM) {
 				nodeStartTime = currentTime;
 				nodeActive = true;
 				Serial.print(F("Permimeter right front alarm: "));
-				Serial.println(unitState.irRightFrontCM);
+				Serial.println(sensors.irRightFrontCM);
 				motors.motorLeft->setPower(-160);
 				motors.motorRight->setPower(160);
 				motors.motorsActive = true;
 			}
 		}
 		else {
-			if ((nodeStartTime + duration < currentTime) && unitState.irRightFrontCM >= alarmCM) {
+			if ((nodeStartTime + duration < currentTime) && sensors.irRightFrontCM >= alarmCM) {
 				Serial.println(F("Perimeter right front complete."));
-				motors.motorLeft->powerOff();
-				motors.motorRight->powerOff();
+				motors.motorLeft->stop();
+				motors.motorRight->stop();
 				motors.motorsActive = false;
 				nodeStartTime = 0;
 				nodeActive = false;
@@ -475,7 +473,6 @@ private:
 	unsigned long lastCheck = 0;
 	unsigned long nodeStartTime = 0;
 	int percentChance = 10;
-
 	virtual bool run() override {
 		currentTime = millis();
 		if (lastCheck == 0) {
@@ -491,8 +488,8 @@ private:
 					nodeActive = true;
 					nodeStartTime = currentTime;
 					Serial.println(F("Doing nothing."));
-					motors.motorLeft->powerOff();
-					motors.motorRight->powerOff();
+					motors.motorLeft->stop();
+					motors.motorRight->stop();
 					motors.motorsActive = false;
 				}
 			}
@@ -510,7 +507,6 @@ private:
 
 class Cruise_Forward : public Behavior_Tree::Node {
 private:
-	String name = "Cruise";
 	bool nodeActive = true;
 	virtual bool run() override {
 		if (!motors.motorsActive)

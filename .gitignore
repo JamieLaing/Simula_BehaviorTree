@@ -243,3 +243,4 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+Simula_BehaviorTree/__vm/Upload.vmps.xml
