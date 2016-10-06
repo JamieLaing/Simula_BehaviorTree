@@ -45,7 +45,6 @@ Behavior_Tree::Selector selector[3];
 Button_Stop buttonStop;
 Battery_Check batteryCheck;
 
-Motors_Active motorsActive;
 Cliff_Center cliffCenter;
 Cliff_Left cliffLeft;
 Cliff_Right cliffRight;
@@ -96,13 +95,13 @@ void setup() {
 
 	behaviorTree.setRootChild(&selector[0]);
 	selector[0].addChildren({ &buttonStop, &batteryCheck, &orientationCheck, &selector[1], &randomAction, &cruise });
-	selector[1].addChildren({ &motorsActive, &cliffCenter, &cliffLeft, &cliffRight, &perimeterCenter, &perimeterLeft, &perimeterRight });
+	selector[1].addChildren({ &cliffCenter, &cliffLeft, &cliffRight, &perimeterCenter, &perimeterLeft, &perimeterRight });
 
 	crcLights.setRandomColor();
 	crcLights.showRunwayWithDelay();
 
 	//MP3 Player & Amplifier
-	crcAudio.setAmpGain(0); //0 = low, 3 = high
+	crcAudio.setAmpGain(1); //0 = low, 3 = high
 	crcAudio.setVolume(40, 40); //0 = loudest, 60 = softest ?
 	if (!SD.begin(hardware.sdcard_cs)) {
 		Serial.println(F("SD card init failure."));

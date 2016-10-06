@@ -153,7 +153,7 @@ private:
 					else {
 						Serial.println(F("Activating behavior tree."));
 						sensors.activate();
-						simulation.showLedBio();
+						//simulation.showLedBio();
 						delay(50);
 						//return true to allow sensors to read before next tree loop.
 						return true;
@@ -221,18 +221,6 @@ private:
 	}
 };
 
-class Motors_Active : public Behavior_Tree::Node {
-private:
-	//Node defaults to blocking, unless motors are active.
-	bool nodeActive = true;
-	
-	virtual bool run() override {
-		if (motors.active()) {
-			nodeActive = false;
-		}
-		return nodeActive;
-	}
-};
 class Cliff_Center : public Behavior_Tree::Node {
 private:
 	bool nodeActive = false;

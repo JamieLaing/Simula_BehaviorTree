@@ -106,7 +106,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties debug.remote.portname="" debug.local.portname="" debug.remote.portspeed="" arduino.upload.port="COM5" debug.local.portspeed="" />
+      <UserProperties debug.remote.portname="" debug.local.portname="" debug.remote.portspeed="" arduino.upload.port="COM10" debug.local.portspeed="" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
