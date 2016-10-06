@@ -39,10 +39,17 @@ class Motors {
 public:
 	Motor* motorLeft;
 	Motor* motorRight;
-	bool motorsActive = false;
 	void initialize(Motor* mtrLeft, Motor* mtrRight) {
 		motorLeft = mtrLeft;
 		motorRight = mtrRight;
+	}
+	void setPower(int powerLeft, int powerRight) {
+		motorLeft->setPower(powerLeft);
+		motorRight->setPower(powerRight);
+	}
+	void allStop() {
+		motorLeft->stop();
+		motorRight->stop();
 	}
 	bool active() {
 		if (motorLeft->motorActive || motorRight->motorActive) {

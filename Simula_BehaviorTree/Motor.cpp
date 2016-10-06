@@ -17,7 +17,6 @@ Motor::Motor(int encoderPin1, int encoderPin2, int mtrEnable, int mtrIn1, int mt
 	pinMode(_mtrIn2, OUTPUT);
 	stop();
 	motorActive = false;
-
 }
 
 void Motor::setPower(int power) {
@@ -45,13 +44,10 @@ void Motor::setPower(int power) {
 }
 
 void Motor::stop() {
-	if (motorActive)
-	{
-		analogWrite(_mtrEnable, 0);
-		digitalWrite(_mtrIn1, LOW);
-		digitalWrite(_mtrIn2, LOW);
-		motorActive = false;
-	}
+	analogWrite(_mtrEnable, 0);
+	digitalWrite(_mtrIn1, LOW);
+	digitalWrite(_mtrIn2, LOW);
+	motorActive = false;
 }
 
 bool Motor::positionChanged() {

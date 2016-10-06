@@ -97,29 +97,6 @@ public:
 	void setRootChild(Node* rootChild) const { root->setChild(rootChild); }
 	bool run() const { return root->run(); }
 };
-class Action : public Behavior_Tree::Node {
-private:
-	String name;
-	int probabilityOfSuccess;
-public:
-	Action(const String newName, int prob) : name(newName), probabilityOfSuccess(prob) {}
-private:
-	virtual bool run() override {
-		long randNum = random(1, 101);
-
-		Serial.print(F("random number: "));
-		Serial.println(randNum);
-		Serial.print(name);
-		if (randNum <= probabilityOfSuccess) {
-			Serial.println(F(" succeeded."));
-			Serial.println("");
-			return true;
-		}
-		Serial.println(F(" failed."));
-		Serial.println(F(""));
-		return false;
-	}
-};
 class Button_Stop : public Behavior_Tree::Node {
 private:
 	bool buttonState = true;
@@ -128,10 +105,6 @@ private:
 	const long debounceDelay = 10;
 	virtual bool run() override {
 		int reading = digitalRead(hardware.pinButton);
-		/*Serial.print("reading:");
-		Serial.println(reading);
-		Serial.print("lastButtonState:");
-		Serial.println(lastButtonState);*/
 		if (reading != lastButtonState) {
 			debounceTime = millis();
 		}
@@ -144,9 +117,7 @@ private:
 					if (!treeState.treeActive)
 					{
 						Serial.println(F("Behavior tree off."));
-						motors.motorLeft->stop();
-						motors.motorRight->stop();
-						motors.motorsActive = false;
+						motors.allStop();
 						sensors.deactivate();
 						simulation.showLedNone();
 					}
@@ -236,8 +207,7 @@ private:
 				nodeActive = true;
 				Serial.println(F("Cliff center detected."));
 				nodeStartTime = currentTime;
-				motors.motorLeft->setPower(-120);
-				motors.motorRight->setPower(-120);
+				motors.setPower(-120, -120);
 			}
 		}
 		else
@@ -246,9 +216,7 @@ private:
 				Serial.println(F("Cliff center complete."));
 				nodeActive = false;
 				nodeStartTime = 0;
-				motors.motorLeft->stop();
-				motors.motorRight->stop();
-				motors.motorsActive = false;
+				motors.allStop();
 			}
 		}
 		return nodeActive;
@@ -271,23 +239,19 @@ private:
 				Serial.println(F("Cliff left detected."));
 				nodeStartTime = currentTime;
 				nodeActive = true;
-				motors.motorLeft->setPower(-120);
-				motors.motorRight->setPower(-120);
+				motors.setPower(-120, -120);
 			}
 		}
 		else {
 			if ((nodeStartTime + backDuration < currentTime) && !turnStarted) {
 				Serial.println(F("Cliff left turning."));
 				turnStarted = true;
-				motors.motorLeft->setPower(180);
-				motors.motorRight->setPower(-180);
+				motors.setPower(180, -180);
 			}
 			if (nodeStartTime + backDuration + turnDuration < currentTime) {
 				Serial.println(F("Cliff left stopping."));
 				nodeStartTime = 0;
-				motors.motorsActive = false;
-				motors.motorLeft->stop();
-				motors.motorRight->stop();
+				motors.allStop();
 				nodeActive = false;
 				turnStarted = false;
 			}
@@ -311,23 +275,19 @@ private:
 				Serial.println(F("Cliff right detected."));
 				nodeStartTime = currentTime;
 				nodeActive = true;
-				motors.motorLeft->setPower(-120);
-				motors.motorRight->setPower(-120);
+				motors.setPower(-120, -120);
 			}
 		}
 		else {
 			if ((nodeStartTime + backDuration < currentTime) && !turnStarted) {
 				Serial.println(F("Cliff right turning."));
 				turnStarted = true;
-				motors.motorLeft->setPower(-180);
-				motors.motorRight->setPower(180);
+				motors.setPower(-180, 180);
 			}
 			if (nodeStartTime + backDuration + turnDuration < currentTime) {
 				Serial.println(F("Cliff right stopping."));
 				nodeStartTime = 0;
-				motors.motorsActive = false;
-				motors.motorLeft->stop();
-				motors.motorRight->stop();
+				motors.allStop();
 				nodeActive = false;
 				turnStarted = false;
 			}
@@ -358,14 +318,12 @@ private:
 				Serial.println(randNum);
 				if (randNum <= 50) {
 					Serial.println(F("Turning left."));
-					motors.motorLeft->setPower(-160);
-					motors.motorRight->setPower(160);
+					motors.setPower(-160, 160);
 				}
 				else
 				{
 					Serial.println(F("Turning right."));
-					motors.motorLeft->setPower(160);
-					motors.motorRight->setPower(-160);
+					motors.setPower(160, -160);
 				}
 				return nodeActive;
 			}
@@ -373,9 +331,7 @@ private:
 		else {
 			if ((nodeStartTime + duration < currentTime) && (sensors.irFrontCM >= alarmCM)) {
 				Serial.println(F("Perimeter center complete."));
-				motors.motorLeft->stop();
-				motors.motorRight->stop();
-				motors.motorsActive = false;
+				motors.allStop();
 				nodeStartTime = 0;
 				nodeActive = false;
 			}
@@ -398,17 +354,13 @@ private:
 				nodeActive = true;
 				Serial.print(F("Permimeter left front alarm: "));
 				Serial.println(sensors.irLeftFrontCM);
-				motors.motorLeft->setPower(160);
-				motors.motorRight->setPower(-160);
-				motors.motorsActive = true;
+				motors.setPower(160, -160);
 			}
 		}
 		else {
 			if ((nodeStartTime + duration < currentTime) && sensors.irLeftFrontCM >= alarmCM) {
 				Serial.println(F("Perimeter left front complete."));
-				motors.motorLeft->stop();
-				motors.motorRight->stop();
-				motors.motorsActive = false;
+				motors.allStop();
 				nodeStartTime = 0;
 				nodeActive = false;
 			}
@@ -431,17 +383,13 @@ private:
 				nodeActive = true;
 				Serial.print(F("Permimeter right front alarm: "));
 				Serial.println(sensors.irRightFrontCM);
-				motors.motorLeft->setPower(-160);
-				motors.motorRight->setPower(160);
-				motors.motorsActive = true;
+				motors.setPower(-160, 160);
 			}
 		}
 		else {
 			if ((nodeStartTime + duration < currentTime) && sensors.irRightFrontCM >= alarmCM) {
 				Serial.println(F("Perimeter right front complete."));
-				motors.motorLeft->stop();
-				motors.motorRight->stop();
-				motors.motorsActive = false;
+				motors.allStop();
 				nodeStartTime = 0;
 				nodeActive = false;
 			}
@@ -476,9 +424,7 @@ private:
 					nodeActive = true;
 					nodeStartTime = currentTime;
 					Serial.println(F("Doing nothing."));
-					motors.motorLeft->stop();
-					motors.motorRight->stop();
-					motors.motorsActive = false;
+					motors.allStop();
 				}
 			}
 		}
@@ -497,13 +443,9 @@ class Cruise_Forward : public Behavior_Tree::Node {
 private:
 	bool nodeActive = true;
 	virtual bool run() override {
-		if (!motors.motorsActive)
-		{
-			Serial.println(F("Cruising."));
-			motors.motorsActive = true;
-			//motors.motorLeft->setPower(120);
-			//motors.motorRight->setPower(120);
-		}
+		//Serial.println(F("Cruising."));
+		//motors.motorLeft->setPower(120);
+		//motors.motorRight->setPower(120);
 		return nodeActive;
 	}
 };
