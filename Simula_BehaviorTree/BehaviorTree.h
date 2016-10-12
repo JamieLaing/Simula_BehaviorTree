@@ -401,6 +401,8 @@ private:
 class Random_Action : public Behavior_Tree::Node {
 	//This function is checked every checkInterval to see if it should run.
 	//The interval is randomized, as is the duration of the time doing nothing.
+public:
+	Random_Action(int chance) : percentChance(chance) {}
 private:
 	bool nodeActive = false;
 	long checkInterval = 5000;
@@ -408,7 +410,7 @@ private:
 	unsigned long currentTime;
 	unsigned long lastCheck = 0;
 	unsigned long nodeStartTime = 0;
-	int percentChance = 10;
+	int percentChance;
 	virtual bool run() override {
 		currentTime = millis();
 		if (lastCheck == 0) {

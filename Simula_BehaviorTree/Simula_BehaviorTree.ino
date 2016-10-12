@@ -42,6 +42,7 @@ CRC_AudioManagerClass crcAudio;
 
 Behavior_Tree behaviorTree;
 Behavior_Tree::Selector selector[3];
+Behavior_Tree::RandomSelector randomSel[1];
 Button_Stop buttonStop;
 Battery_Check batteryCheck;
 
@@ -52,8 +53,9 @@ Cruise_Forward cruise;
 Perimeter_Center perimeterCenter;
 Perimeter_Left perimeterLeft;
 Perimeter_Right perimeterRight;
-Random_Action randomAction;
+Random_Action randomAction(10);
 Orientation_Check orientationCheck;
+
 
 void setup() {
 	Serial.begin(115200);
@@ -62,7 +64,7 @@ void setup() {
 	initializeSystem();
 	behaviorTree.setRootChild(&selector[0]);
 	selector[0].addChildren({ &buttonStop, &batteryCheck, &orientationCheck, &selector[1], &randomAction, &cruise });
-	selector[1].addChildren({ &cliffCenter, &cliffLeft, &cliffRight, &perimeterCenter, &perimeterLeft, &perimeterRight });
+	selector[1].addChildren({ &perimeterCenter, &perimeterLeft, &perimeterRight, &cliffCenter, &cliffLeft, &cliffRight });
 
 	crcLights.setRandomColor();
 	crcLights.showRunwayWithDelay();
