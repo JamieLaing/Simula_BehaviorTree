@@ -50,7 +50,7 @@ public:
 	void reset();
 	inline boolean isPlayingAudio() { return _isPlayingAudio; }
 	void stopAudio();
-	boolean startAudioFile(const char * fileName);
+	boolean startAudioFile(const char *fileName);
 	boolean playFullAudioFile(const char *trackname);
 	void enableAmp();
 	void disableAmp();

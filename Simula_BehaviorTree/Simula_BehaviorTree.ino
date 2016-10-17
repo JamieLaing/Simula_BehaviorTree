@@ -53,7 +53,7 @@ Cruise_Forward cruise;
 Perimeter_Center perimeterCenter;
 Perimeter_Left perimeterLeft;
 Perimeter_Right perimeterRight;
-Random_Action randomAction(10);
+Random_Action randomAction(90);
 Orientation_Check orientationCheck;
 
 
@@ -73,7 +73,8 @@ void setup() {
 	crcAudio.setVolume(40, 40); //0 = loudest, 60 = softest ?
 	
 	if (hardware.sdInitialized) {
-		crcAudio.playRandomAudio("effects/PwrUp_", 10, ".mp3");
+		//crcAudio.playRandomAudio(F("effects/PwrDn_"), 10, F(".mp3"));
+		crcAudio.playRandomAudio(F("effects/PwrUp_"), 10, F(".mp3"));
 	}
 	Serial.println(F("Setup complete."));
 }
@@ -90,7 +91,7 @@ void loop() {
 	}
 	
 	if (!behaviorTree.run()) {
-		Serial.println(F("All tree nodes returned false."));
+		//Serial.println(F("All tree nodes returned false."));
 	}
 }
 

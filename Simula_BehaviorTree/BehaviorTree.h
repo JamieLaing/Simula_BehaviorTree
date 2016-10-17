@@ -154,6 +154,7 @@ private:
 					Serial.println(postVoltage);
 					Serial.print(F("below threshold of: "));
 					Serial.println(hardware.lowBatteryVoltage);
+					crcAudio.playRandomAudio("effects/PwrDn_", 10, ".mp3");
 				}
 			}
 		}
@@ -167,9 +168,8 @@ private:
 	const int Z_Orient_Min = 15000;
 	virtual bool run() override {
 
-
-		if (sensors.lsm.accelData.z < Z_Orient_Min) {
-			crcAudio.playRandomAudio("emotions/scare_", 9, ".mp3");
+		if ((sensors.lsm.accelData.z < Z_Orient_Min) && (!motors.active()) && (!crcAudio.isPlayingAudio())) {
+			crcAudio.playRandomAudio(F("emotions/scare_"), 9, F(".mp3"));
 			//Serial.print("Z: ");
 			//Serial.println(sensors.lsm.accelData.z);
 			nodeActive = true;
@@ -443,11 +443,37 @@ private:
 
 class Cruise_Forward : public Behavior_Tree::Node {
 private:
-	bool nodeActive = true;
+	bool nodeActive = false;
+	long checkInterval = 1000;
+	long duration = 2000;
+	unsigned long currentTime;
+	unsigned long lastCheck = 0;
+	unsigned long nodeStartTime = 0;
+
 	virtual bool run() override {
-		//Serial.println(F("Cruising."));
-		//motors.motorLeft->setPower(120);
-		//motors.motorRight->setPower(120);
+		currentTime = millis();
+		if (lastCheck == 0) {
+			lastCheck = currentTime;
+		}
+		if (!nodeActive) {
+			if (lastCheck + checkInterval < currentTime) {
+				nodeStartTime = currentTime;
+				lastCheck = currentTime;
+				nodeActive = true;
+				Serial.println("Cruising.");
+			}
+			if (!motors.active() && nodeActive) {
+				motors.setPower(120, 120);
+			}
+		}
+		else {
+			if (nodeStartTime + duration < currentTime) {
+				Serial.println(F("Cruise finished."));
+				motors.allStop();
+				nodeActive = false;
+				nodeStartTime = 0;
+			}
+		}
 		return nodeActive;
 	}
 };

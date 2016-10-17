@@ -258,11 +258,15 @@ void CRC_AudioManagerClass::disableAmp() {
 	_ampEnabled = false;
 }
 void CRC_AudioManagerClass::playRandomAudio(String fileBase, int fileCount, String fileSuffix) {
-	hardware.seedRandomGenerator();
-	int randomFile = random(1, fileCount + 1);
-	String fileNumber = formatLeadingZero(randomFile);
-	String filename = fileBase + fileNumber + fileSuffix;
-	crcAudio.startAudioFile(filename.c_str());
+	if (!isPlayingAudio()) {
+		hardware.seedRandomGenerator();
+		int randomFile = random(1, fileCount + 1);
+		String fileNumber = formatLeadingZero(randomFile);
+		String filename = fileBase + fileNumber + fileSuffix;
+		//Serial.print("Playing: ");
+		//Serial.println(filename);
+		crcAudio.startAudioFile(filename.c_str());
+	}
 }
 String CRC_AudioManagerClass::formatLeadingZero(int value) {
 	String retVal;
