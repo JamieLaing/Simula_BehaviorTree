@@ -36,12 +36,16 @@ private:
 	static const uint8_t animationNone = 0;
 	static const uint8_t animationBio = 1;
 	static const uint8_t animationRunwayFwd = 2;
+
 public:
 	CRC_SimulationClass();
 	void tick();
 	void showLedBio();
 	void showLedNone();
 	int getSineWave(float amplitude, float periodMillis, long millis);
+
+	//Action related
+	bool actionActive;
 };
 
 extern CRC_SimulationClass simulation;

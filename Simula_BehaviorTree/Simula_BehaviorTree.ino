@@ -53,7 +53,8 @@ Cruise_Forward cruise;
 Perimeter_Center perimeterCenter;
 Perimeter_Left perimeterLeft;
 Perimeter_Right perimeterRight;
-Random_Action randomAction(90);
+Random_Action action1("action1", 100), action2("action2", 100), action3("action3", 100), 
+action4("action4", 100), action5("action5", 100);
 Orientation_Check orientationCheck;
 
 
@@ -63,8 +64,9 @@ void setup() {
 
 	initializeSystem();
 	behaviorTree.setRootChild(&selector[0]);
-	selector[0].addChildren({ &buttonStop, &batteryCheck, &orientationCheck, &selector[1], &randomAction, &cruise });
+	selector[0].addChildren({ &buttonStop, &batteryCheck, &orientationCheck, &selector[1], &randomSel[0], &cruise });
 	selector[1].addChildren({ &perimeterCenter, &perimeterLeft, &perimeterRight, &cliffCenter, &cliffLeft, &cliffRight });
+	randomSel[0].addChildren({ &action1, &action2, &action3, &action4, &action5 });
 
 	crcLights.setRandomColor();
 	crcLights.showRunwayWithDelay();
@@ -91,7 +93,7 @@ void loop() {
 	}
 	
 	if (!behaviorTree.run()) {
-		//Serial.println(F("All tree nodes returned false."));
+		Serial.println(F("All tree nodes returned false."));
 	}
 }
 

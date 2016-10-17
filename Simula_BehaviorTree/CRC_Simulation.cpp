@@ -22,6 +22,8 @@ CRC_SimulationClass::CRC_SimulationClass() {
 	breathsMsCheck = 0;
 	breathBrightness = 0;
 	breathFadeTimecheck = millis();
+
+	actionActive = false;
 }
 void CRC_SimulationClass::tick() {
 	unsigned long now = millis();

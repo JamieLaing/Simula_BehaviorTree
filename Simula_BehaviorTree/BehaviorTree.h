@@ -61,10 +61,10 @@ public:
 		}
 	};
 
-	class RandomSelector : public CompositeNode {  // RandomSelector operates as a Selector, but in a random order instead of from first child to last child.
+	class RandomSelector : public CompositeNode {  //Shuffles children prior to running.
 	public:
 		virtual bool run() override {
-			for (Node* child : childrenShuffled()) {  // The order is shuffled
+			for (Node* child : childrenShuffled()) {
 				if (child->run())
 					return true;
 			}
@@ -402,40 +402,36 @@ class Random_Action : public Behavior_Tree::Node {
 	//This function is checked every checkInterval to see if it should run.
 	//The interval is randomized, as is the duration of the time doing nothing.
 public:
-	Random_Action(int chance) : percentChance(chance) {}
+	Random_Action(const String newName, int chance) : name(newName), percentChance(chance) {}
 private:
+	int percentChance;
+	String name;
+
 	bool nodeActive = false;
 	long checkInterval = 5000;
 	long duration = 4000;
 	unsigned long currentTime;
-	unsigned long lastCheck = 0;
 	unsigned long nodeStartTime = 0;
-	int percentChance;
+	
 	virtual bool run() override {
 		currentTime = millis();
-		if (lastCheck == 0) {
-			lastCheck = currentTime;
-		}
-		if (!nodeActive){
-			if (lastCheck + checkInterval < currentTime) {
-				lastCheck = currentTime;
-				long randNum = random(1, 101);
-				Serial.print(F("random number: "));
-				Serial.println(randNum);
-				if (randNum <= percentChance) {
-					nodeActive = true;
-					nodeStartTime = currentTime;
-					Serial.println(F("Doing nothing."));
-					motors.allStop();
-				}
+		if (!nodeActive && !simulation.actionActive){
+			long randNum = random(1, 101);
+			Serial.print(name + F(" random number: "));
+			Serial.println(randNum);
+			if (randNum <= percentChance) {
+				nodeActive = true;
+				simulation.actionActive = true;
+				nodeStartTime = currentTime;
+				Serial.println(name + F(" active."));
+				motors.allStop();
 			}
 		}
-		else {
-			if (nodeStartTime + duration < currentTime) {
-				Serial.println(F("Doing nothing finished."));
-				nodeActive = false;
-				nodeStartTime = 0;
-			}
+		if(nodeActive && (nodeStartTime + duration < currentTime)){
+			Serial.println(name + F(" finished."));
+			simulation.actionActive = false;
+			nodeActive = false;
+			nodeStartTime = 0;
 		}
 		return nodeActive;
 	}
@@ -460,10 +456,10 @@ private:
 				nodeStartTime = currentTime;
 				lastCheck = currentTime;
 				nodeActive = true;
-				Serial.println("Cruising.");
+				Serial.println(F("Cruising."));
 			}
 			if (!motors.active() && nodeActive) {
-				motors.setPower(120, 120);
+				//motors.setPower(120, 120);
 			}
 		}
 		else {
