@@ -43,6 +43,7 @@ public:
 		motorLeft = mtrLeft;
 		motorRight = mtrRight;
 	}
+	//power range: 0-255
 	void setPower(int powerLeft, int powerRight) {
 		motorLeft->setPower(powerLeft);
 		motorRight->setPower(powerRight);

@@ -42,21 +42,19 @@ CRC_AudioManagerClass crcAudio;
 
 Behavior_Tree behaviorTree;
 Behavior_Tree::Selector selector[3];
-Behavior_Tree::RandomSelector randomSel[1];
+Behavior_Tree::RandomSelector randomSort[1];
 Button_Stop buttonStop;
 Battery_Check batteryCheck;
-
 Cliff_Center cliffCenter;
 Cliff_Left cliffLeft;
 Cliff_Right cliffRight;
-Cruise_Forward cruise;
 Perimeter_Center perimeterCenter;
 Perimeter_Left perimeterLeft;
 Perimeter_Right perimeterRight;
-Random_Action action1("action1", 100), action2("action2", 100), action3("action3", 100), 
-action4("action4", 100), action5("action5", 100);
 Orientation_Check orientationCheck;
-
+Forward_Random forwardRandom(20);
+Turn_Random turnLeft(15, true), turnRight(15, false);
+Do_Nothing doNothing(80);
 
 void setup() {
 	Serial.begin(115200);
@@ -64,9 +62,9 @@ void setup() {
 
 	initializeSystem();
 	behaviorTree.setRootChild(&selector[0]);
-	selector[0].addChildren({ &buttonStop, &batteryCheck, &orientationCheck, &selector[1], &randomSel[0], &cruise });
+	selector[0].addChildren({ &buttonStop, &batteryCheck, &orientationCheck, &selector[1], &randomSort[0] });
 	selector[1].addChildren({ &perimeterCenter, &perimeterLeft, &perimeterRight, &cliffCenter, &cliffLeft, &cliffRight });
-	randomSel[0].addChildren({ &action1, &action2, &action3, &action4, &action5 });
+	randomSort[0].addChildren({ &forwardRandom, &doNothing, &turnLeft, &turnRight });
 
 	crcLights.setRandomColor();
 	crcLights.showRunwayWithDelay();

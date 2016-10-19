@@ -120,6 +120,7 @@ private:
 						motors.allStop();
 						sensors.deactivate();
 						simulation.showLedNone();
+						crcLights.setButtonLevel(0);
 					}
 					else {
 						Serial.println(F("Activating behavior tree."));
@@ -398,37 +399,34 @@ private:
 	}
 };
 
-class Random_Action : public Behavior_Tree::Node {
+class Do_Nothing : public Behavior_Tree::Node {
 	//This function is checked every checkInterval to see if it should run.
 	//The interval is randomized, as is the duration of the time doing nothing.
 public:
-	Random_Action(const String newName, int chance) : name(newName), percentChance(chance) {}
+	Do_Nothing(int chance) : percentChance(chance) {}
 private:
 	int percentChance;
-	String name;
 
 	bool nodeActive = false;
-	long checkInterval = 5000;
-	long duration = 4000;
+	long duration = 1000;
 	unsigned long currentTime;
 	unsigned long nodeStartTime = 0;
-	
+
 	virtual bool run() override {
 		currentTime = millis();
-		if (!nodeActive && !simulation.actionActive){
+		if (!nodeActive && !simulation.actionActive) {
 			long randNum = random(1, 101);
-			Serial.print(name + F(" random number: "));
+			Serial.print(F("Do_Nothing number: "));
 			Serial.println(randNum);
 			if (randNum <= percentChance) {
 				nodeActive = true;
 				simulation.actionActive = true;
 				nodeStartTime = currentTime;
-				Serial.println(name + F(" active."));
-				motors.allStop();
+				Serial.println(F("Do_Nothing active."));
 			}
 		}
-		if(nodeActive && (nodeStartTime + duration < currentTime)){
-			Serial.println(name + F(" finished."));
+		if (nodeActive && (nodeStartTime + duration < currentTime)) {
+			Serial.println(F("Do_Nothing finished."));
 			simulation.actionActive = false;
 			nodeActive = false;
 			nodeStartTime = 0;
@@ -437,42 +435,92 @@ private:
 	}
 };
 
-class Cruise_Forward : public Behavior_Tree::Node {
+class Forward_Random : public Behavior_Tree::Node {
+	//This function is checked every checkInterval to see if it should run.
+	//The interval is randomized, as is the duration of the time doing nothing.
+public:
+	Forward_Random(int chance) : percentChance(chance) {}
 private:
+	int percentChance;
+
 	bool nodeActive = false;
-	long checkInterval = 1000;
-	long duration = 2000;
+	long duration;
 	unsigned long currentTime;
-	unsigned long lastCheck = 0;
 	unsigned long nodeStartTime = 0;
 
 	virtual bool run() override {
 		currentTime = millis();
-		if (lastCheck == 0) {
-			lastCheck = currentTime;
-		}
-		if (!nodeActive) {
-			if (lastCheck + checkInterval < currentTime) {
-				nodeStartTime = currentTime;
-				lastCheck = currentTime;
+		if (!nodeActive && !simulation.actionActive) {
+			long randNum = random(1, 101);
+			duration = random(100, 2000);
+			Serial.print(F("Forward_Random number: "));
+			Serial.println(randNum);
+			if (randNum <= percentChance) {
 				nodeActive = true;
-				Serial.println(F("Cruising."));
-			}
-			if (!motors.active() && nodeActive) {
-				//motors.setPower(120, 120);
+				simulation.actionActive = true;
+				nodeStartTime = currentTime;
+				Serial.println(F("Forward_Random active."));
+				motors.setPower(160, 160);
 			}
 		}
-		else {
-			if (nodeStartTime + duration < currentTime) {
-				Serial.println(F("Cruise finished."));
-				motors.allStop();
-				nodeActive = false;
-				nodeStartTime = 0;
-			}
+		if (nodeActive && (nodeStartTime + duration < currentTime)) {
+			Serial.println(F("Forward_Random finished."));
+			simulation.actionActive = false;
+			nodeActive = false;
+			nodeStartTime = 0;
 		}
 		return nodeActive;
 	}
 };
+
+class Turn_Random : public Behavior_Tree::Node {
+	//This function is checked every checkInterval to see if it should run.
+	//The interval is randomized, as is the duration of the time doing nothing.
+public:
+	Turn_Random(int chance, bool clockwise) : percentChance(chance), _clockwise(clockwise) {}
+private:
+	int percentChance;
+	bool _clockwise;
+
+	bool nodeActive = false;
+	long duration;
+	unsigned long currentTime;
+	unsigned long nodeStartTime = 0;
+	
+	virtual bool run() override {
+		currentTime = millis();
+		if (!nodeActive && !simulation.actionActive){
+			long randNum = random(1, 101);
+			Serial.print(F("turnRandom number: "));
+			Serial.println(randNum);
+			if (randNum <= percentChance) {
+				duration = random(50, 1500);
+				nodeActive = true;
+				simulation.actionActive = true;
+				nodeStartTime = currentTime;
+				Serial.println(F("turnRandom active."));
+				if (_clockwise) {
+					motors.setPower(-160, 160);
+				}
+				else {
+					motors.setPower(160, -160);
+				}
+				
+			}
+		}
+		if(nodeActive && (nodeStartTime + duration < currentTime)){
+			Serial.println(F("turnRandom finished."));
+			simulation.actionActive = false;
+			motors.allStop();
+			nodeActive = false;
+			nodeStartTime = 0;
+		}
+		return nodeActive;
+	}
+};
+
+
+
 
 #endif
 
