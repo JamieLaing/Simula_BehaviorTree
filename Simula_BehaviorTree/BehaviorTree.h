@@ -208,7 +208,7 @@ private:
 				nodeActive = true;
 				Serial.println(F("Cliff center detected."));
 				nodeStartTime = currentTime;
-				motors.setPower(-120, -120);
+				motors.setPower(-simulation.straightSpeed, -simulation.straightSpeed);
 			}
 		}
 		else
@@ -240,14 +240,14 @@ private:
 				Serial.println(F("Cliff left detected."));
 				nodeStartTime = currentTime;
 				nodeActive = true;
-				motors.setPower(-120, -120);
+				motors.setPower(-simulation.straightSpeed, -simulation.straightSpeed);
 			}
 		}
 		else {
 			if ((nodeStartTime + backDuration < currentTime) && !turnStarted) {
 				Serial.println(F("Cliff left turning."));
 				turnStarted = true;
-				motors.setPower(180, -180);
+				motors.setPower(simulation.turnSpeed, -simulation.turnSpeed);
 			}
 			if (nodeStartTime + backDuration + turnDuration < currentTime) {
 				Serial.println(F("Cliff left stopping."));
@@ -276,14 +276,14 @@ private:
 				Serial.println(F("Cliff right detected."));
 				nodeStartTime = currentTime;
 				nodeActive = true;
-				motors.setPower(-120, -120);
+				motors.setPower(-simulation.straightSpeed, -simulation.straightSpeed);
 			}
 		}
 		else {
 			if ((nodeStartTime + backDuration < currentTime) && !turnStarted) {
 				Serial.println(F("Cliff right turning."));
 				turnStarted = true;
-				motors.setPower(-180, 180);
+				motors.setPower(-simulation.turnSpeed, simulation.turnSpeed);
 			}
 			if (nodeStartTime + backDuration + turnDuration < currentTime) {
 				Serial.println(F("Cliff right stopping."));
@@ -307,9 +307,10 @@ private:
 	virtual bool run() override {
 		currentTime = millis();
 		if (!nodeActive) {
-			if (sensors.irFrontCM < alarmCM && sensors.irFrontCM > hardware.irMinimumCM) {
+			if ((sensors.irFrontCM < alarmCM && sensors.irFrontCM > hardware.irMinimumCM) && (!simulation.perimeterActive)) {
 				nodeStartTime = currentTime;
 				nodeActive = true;
+				simulation.perimeterActive = true;
 				Serial.print(F("Permimeter center alarm: "));
 				Serial.println(sensors.irFrontCM);
 				//50% chance of turning either directon
@@ -319,12 +320,12 @@ private:
 				Serial.println(randNum);
 				if (randNum <= 50) {
 					Serial.println(F("Turning left."));
-					motors.setPower(-160, 160);
+					motors.setPower(-simulation.turnSpeed, simulation.turnSpeed);
 				}
 				else
 				{
 					Serial.println(F("Turning right."));
-					motors.setPower(160, -160);
+					motors.setPower(simulation.turnSpeed, -simulation.turnSpeed);
 				}
 				return nodeActive;
 			}
@@ -335,6 +336,7 @@ private:
 				motors.allStop();
 				nodeStartTime = 0;
 				nodeActive = false;
+				simulation.perimeterActive = false;
 			}
 		}
 		return nodeActive;
@@ -350,12 +352,13 @@ private:
 	virtual bool run() override {
 		currentTime = millis();
 		if (!nodeActive) {
-			if (sensors.irLeftFrontCM < alarmCM && sensors.irLeftFrontCM > hardware.irMinimumCM) {
+			if ((sensors.irLeftFrontCM < alarmCM && sensors.irLeftFrontCM > hardware.irMinimumCM) && !simulation.perimeterActive) {
 				nodeStartTime = currentTime;
 				nodeActive = true;
+				simulation.perimeterActive = true;
 				Serial.print(F("Permimeter left front alarm: "));
 				Serial.println(sensors.irLeftFrontCM);
-				motors.setPower(160, -160);
+				motors.setPower(simulation.turnSpeed, -simulation.turnSpeed);
 			}
 		}
 		else {
@@ -364,6 +367,7 @@ private:
 				motors.allStop();
 				nodeStartTime = 0;
 				nodeActive = false;
+				simulation.perimeterActive = false;
 			}
 		}
 		return nodeActive;
@@ -379,12 +383,13 @@ private:
 	virtual bool run() override {
 		currentTime = millis();
 		if (!nodeActive) {
-			if (sensors.irRightFrontCM < alarmCM && sensors.irRightFrontCM > hardware.irMinimumCM) {
+			if ((sensors.irRightFrontCM < alarmCM && sensors.irRightFrontCM > hardware.irMinimumCM) && !simulation.perimeterActive) {
 				nodeStartTime = currentTime;
 				nodeActive = true;
+				simulation.perimeterActive = true;
 				Serial.print(F("Permimeter right front alarm: "));
 				Serial.println(sensors.irRightFrontCM);
-				motors.setPower(-160, 160);
+				motors.setPower(-simulation.turnSpeed, simulation.turnSpeed);
 			}
 		}
 		else {
@@ -393,6 +398,7 @@ private:
 				motors.allStop();
 				nodeStartTime = 0;
 				nodeActive = false;
+				simulation.perimeterActive = false;
 			}
 		}
 		return nodeActive;
@@ -460,7 +466,7 @@ private:
 				simulation.actionActive = true;
 				nodeStartTime = currentTime;
 				Serial.println(F("Forward_Random active."));
-				motors.setPower(160, 160);
+				motors.setPower(simulation.straightSpeed, simulation.straightSpeed);
 			}
 		}
 		if (nodeActive && (nodeStartTime + duration < currentTime)) {
@@ -500,10 +506,10 @@ private:
 				nodeStartTime = currentTime;
 				Serial.println(F("turnRandom active."));
 				if (_clockwise) {
-					motors.setPower(-160, 160);
+					motors.setPower(-simulation.turnSpeed, simulation.turnSpeed);
 				}
 				else {
-					motors.setPower(160, -160);
+					motors.setPower(simulation.turnSpeed, -simulation.turnSpeed);
 				}
 				
 			}
