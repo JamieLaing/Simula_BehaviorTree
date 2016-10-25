@@ -503,6 +503,7 @@ private:
 				duration = random(50, 1500);
 				nodeActive = true;
 				simulation.actionActive = true;
+				simulation.perimeterActive = true;
 				nodeStartTime = currentTime;
 				Serial.println(F("turnRandom active."));
 				if (_clockwise) {
@@ -517,6 +518,7 @@ private:
 		if(nodeActive && (nodeStartTime + duration < currentTime)){
 			Serial.println(F("turnRandom finished."));
 			simulation.actionActive = false;
+			simulation.perimeterActive = false;
 			motors.allStop();
 			nodeActive = false;
 			nodeStartTime = 0;
