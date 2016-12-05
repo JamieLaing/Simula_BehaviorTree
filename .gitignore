@@ -244,3 +244,6 @@ ModelManifest.xml
 # FAKE - F# Make
 .fake/
 Simula_BehaviorTree/__vm/Upload.vmps.xml
+Simula_BehaviorTree/__vm/Compile.vmps.xml
+Simula_BehaviorTree/__vm/Upload.vmps.xml
+Simula_BehaviorTree/__vm/Configuration.Debug.vmps.xml
