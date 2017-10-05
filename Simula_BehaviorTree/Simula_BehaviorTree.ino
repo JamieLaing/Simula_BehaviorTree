@@ -32,13 +32,13 @@ struct HARDWARE_STATE hardwareState;
 struct TREE_STATE treeState;
 
 Sensors sensors = Sensors();
-CRC_HardwareClass hardware;
-CRC_SimulationClass simulation;
+CRC_Hardware hardware;
+CRC_Simulation simulation;
 Motor motorLeft(hardware.enc1A, hardware.enc1B, hardware.mtr1Enable, hardware.mtr1In1, hardware.mtr1In2);
 Motor motorRight(hardware.enc2A, hardware.enc2B, hardware.mtr2Enable, hardware.mtr2In1, hardware.mtr2In2);
 Motors motors;
-CRC_LightsClass crcLights(hardware.i2cPca9635Left, hardware.i2cPca9635Right);
-CRC_AudioManagerClass crcAudio;
+CRC_Lights crcLights(hardware.i2cPca9635Left, hardware.i2cPca9635Right);
+CRC_AudioManager crcAudio;
 
 Behavior_Tree behaviorTree;
 Behavior_Tree::Selector selector[3];
@@ -68,12 +68,12 @@ void setup() {
 
 	crcLights.setRandomColor();
 	crcLights.showRunwayWithDelay();
-	//MP3 Player & Amplifier
-	crcAudio.setAmpGain(1); //0 = low, 3 = high
-	crcAudio.setVolume(40, 40); //0 = loudest, 60 = softest ?
+	
+	//Amplifier gain and VS1053 volume
+	crcAudio.setAmpGain(2); //0 = low, 3 = high
+	crcAudio.setVolume(30, 30); //0 = loudest, 60 = softest ?
 	
 	if (hardware.sdInitialized) {
-		//crcAudio.playRandomAudio(F("effects/PwrDn_"), 10, F(".mp3"));
 		crcAudio.playRandomAudio(F("effects/PwrUp_"), 10, F(".mp3"));
 	}
 	Serial.println(F("Setup complete."));

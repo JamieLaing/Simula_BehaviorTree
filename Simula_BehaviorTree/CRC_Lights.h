@@ -19,7 +19,7 @@ See README.md for license details
 
 #include "CRC_PCA9635.h"
 
-class CRC_LightsClass
+class CRC_Lights
 {
 
 private:
@@ -29,7 +29,7 @@ private:
 	boolean allLedsOff;
 	
 public:
-	CRC_LightsClass(uint8_t leftAddress, uint8_t rightAddress);
+	CRC_Lights(uint8_t leftAddress, uint8_t rightAddress);
 	uint8_t color_R;
 	uint8_t color_G;
 	uint8_t color_B;
@@ -46,7 +46,7 @@ public:
 	boolean setLedHex(uint8_t ledId, String hexString);
 };
 
-extern CRC_LightsClass crcLights;
+extern CRC_Lights crcLights;
 
 #endif
 

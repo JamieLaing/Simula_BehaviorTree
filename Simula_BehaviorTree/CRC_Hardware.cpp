@@ -17,13 +17,13 @@ See README.md for license details
 #include "CRC_Hardware.h"
 #include "CRC_Sensors.h"
 
-void CRC_HardwareClass::init() {
+void CRC_Hardware::init() {
 	seedRandomGenerator();
 	setupPins();
 	setupSPI();
 	setupI2C();
 }
-void CRC_HardwareClass::setupPins()
+void CRC_Hardware::setupPins()
 {
 	//Set up audio amplifier and audio player
 	pinMode(vs1053_dreq, INPUT);
@@ -75,19 +75,19 @@ void CRC_HardwareClass::setupPins()
 	pinMode(pinPingTrigger, OUTPUT);
 	pinMode(pinPingEcho, INPUT);
 }
-void CRC_HardwareClass::setupI2C()
+void CRC_Hardware::setupI2C()
 {
 	Wire.begin();
 	Wire.setTimeout(500);
 }
-void CRC_HardwareClass::setupSPI()
+void CRC_Hardware::setupSPI()
 {
 	SPI.begin();
 	SPI.setDataMode(SPI_MODE0);
 	SPI.setBitOrder(MSBFIRST);
 	SPI.setClockDivider(SPI_CLOCK_DIV128);
 }
-void CRC_HardwareClass::startScanStatus(unsigned long startTime)
+void CRC_Hardware::startScanStatus(unsigned long startTime)
 {
 	// Scan Free Ram START
 	// Keep this block as is at start of this method
@@ -96,7 +96,7 @@ void CRC_HardwareClass::startScanStatus(unsigned long startTime)
 	hardwareState.freeRam = (uint16_t)(&v - (__brkval == 0 ? (uint16_t)&__heap_start : (uint16_t)__brkval));
 	// Scan Free Ram END
 };
-void CRC_HardwareClass::endScanStatus(unsigned long startTime)
+void CRC_Hardware::endScanStatus(unsigned long startTime)
 {
 	unsigned long endTime = millis();
 	unsigned long loopTime = endTime - startTime;
@@ -104,10 +104,10 @@ void CRC_HardwareClass::endScanStatus(unsigned long startTime)
 	hardwareState.loopMinTimeMillis = min(hardwareState.loopMinTimeMillis + 1, loopTime);  // Min Time in millis
 	hardwareState.loopMaxTimeMillis = max(hardwareState.loopMaxTimeMillis, loopTime);  // Max Time in millis
 }
-void CRC_HardwareClass::seedRandomGenerator() {
+void CRC_Hardware::seedRandomGenerator() {
 	randomSeed(analogRead(A3));  //Get voltage reading from an unused pin.
 }
-float CRC_HardwareClass::readBatteryVoltage() {
+float CRC_Hardware::readBatteryVoltage() {
 	int preVoltage = analogRead(hardware.pinBatt);
 	//Standard resistive voltage divider.
 	//In Mainboard v3.05 and up, the resistors are both 10K, 
@@ -124,7 +124,7 @@ float CRC_HardwareClass::readBatteryVoltage() {
 	}
 	return postVoltage;
 }
-int CRC_HardwareClass::getRandomNumberInRange(int lowest, int highest) {
+int CRC_Hardware::getRandomNumberInRange(int lowest, int highest) {
 	seedRandomGenerator();
 	return random(lowest, highest + 1);
 }

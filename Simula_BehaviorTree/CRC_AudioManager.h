@@ -26,7 +26,7 @@ See README.md for license details
 
 #define VS1053_DATABUFFERLEN 32
 
-class CRC_AudioManagerClass
+class CRC_AudioManager
 {
 private:
 	boolean _isPlayingAudio;
@@ -61,7 +61,7 @@ public:
 	void tick();
 };
 
-extern CRC_AudioManagerClass crcAudio;
+extern CRC_AudioManager crcAudio;
 
 #endif
 

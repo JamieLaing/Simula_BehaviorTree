@@ -10,7 +10,7 @@ See README.md for license details
 
 #include "CRC_Simulation.h"
 
-CRC_SimulationClass::CRC_SimulationClass() {
+CRC_Simulation::CRC_Simulation() {
 	exertion = 0;
 	restingBPM = 60;
 	beatMsCheck = 0;
@@ -28,7 +28,7 @@ CRC_SimulationClass::CRC_SimulationClass() {
 	turnSpeed = 160;
 	straightSpeed = 180;
 }
-void CRC_SimulationClass::tick() {
+void CRC_Simulation::tick() {
 	unsigned long now = millis();
 	switch (currentAnimation) {
 	case animationBio:
@@ -42,7 +42,7 @@ void CRC_SimulationClass::tick() {
 		break;
 	}
 }
-void CRC_SimulationClass::buttonHeartbeat(unsigned long &now) {
+void CRC_Simulation::buttonHeartbeat(unsigned long &now) {
 	float beatsPM = ((restingBPM * exertion) / 50) + restingBPM;
 	float msPerBeat = 60000 / beatsPM;
 	float beatsPerMS = beatsPM / 60000;
@@ -56,7 +56,7 @@ void CRC_SimulationClass::buttonHeartbeat(unsigned long &now) {
 	beatBrightness = getSineWave(beatAmplitude, beatsPerMS, beatTime);
 	crcLights.setButtonLevel(beatBrightness);
 }
-void CRC_SimulationClass::ledBreath(unsigned long &now) {
+void CRC_Simulation::ledBreath(unsigned long &now) {
 	float breathsPM = ((restingBreaths * exertion) / 50) + restingBreaths;
 	float msPerBreath = 60000 / breathsPM;
 	float breathsPerMS = breathsPM / 60000;
@@ -73,14 +73,14 @@ void CRC_SimulationClass::ledBreath(unsigned long &now) {
 	breathFraction = breathBrightness / 100.00;
 	crcLights.setAllLeds(crcLights.color_R * breathFraction, crcLights.color_G * breathFraction, crcLights.color_B * breathFraction);
 }
-void CRC_SimulationClass::showLedNone() {
+void CRC_Simulation::showLedNone() {
 	crcLights.setAllOff();
 	currentAnimation = animationNone;
 }
-void CRC_SimulationClass::showLedBio() {
+void CRC_Simulation::showLedBio() {
 	currentAnimation = animationBio;
 }
-int CRC_SimulationClass::getSineWave(float amplitude, float periodMillis, long millis) {
+int CRC_Simulation::getSineWave(float amplitude, float periodMillis, long millis) {
 	//calculation assumes the following:
 	//1) Angular frequency = 2PI
 	//2) Phase shift = - PI / 2, so we start the wave at zero

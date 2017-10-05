@@ -92,20 +92,20 @@ const uint8_t PROGMEM aniRunway[5][5][3]=
 	}
 };
 
-CRC_LightsClass::CRC_LightsClass(uint8_t leftAddress, uint8_t rightAddress)
+CRC_Lights::CRC_Lights(uint8_t leftAddress, uint8_t rightAddress)
 	:ledLeft(leftAddress), ledRight(rightAddress)
 {
 	allLedsOff = true;
 }
-void CRC_LightsClass::init()
+void CRC_Lights::init()
 {
 	ledLeft.init();
 	ledRight.init();
 }
-void CRC_LightsClass::setButtonLevel(uint8_t level) {
+void CRC_Lights::setButtonLevel(uint8_t level) {
 	analogWrite(hardware.pinButtonLED, level);
 }
-void CRC_LightsClass::showRunwayWithDelay() {
+void CRC_Lights::showRunwayWithDelay() {
 
 	for (int i = 0; i < 10; i++) {
 		crcLights.setLed(i, 0, 0, 0);
@@ -128,7 +128,7 @@ void CRC_LightsClass::showRunwayWithDelay() {
 
 	setAllOff();
 }
-void CRC_LightsClass::setAllOff() {
+void CRC_Lights::setAllOff() {
 	if (!allLedsOff) {
 		for (int i = 0; i < 10; i++) {
 			crcLights.setLed(i, 0, 0, 0);
@@ -136,7 +136,7 @@ void CRC_LightsClass::setAllOff() {
 		allLedsOff = true;
 	}
 }
-void CRC_LightsClass::setRandomColor(){
+void CRC_Lights::setRandomColor(){
 	color_R = hardware.getRandomNumberInRange(0, 255);
 	color_G = hardware.getRandomNumberInRange(0, 255);
 	color_B = hardware.getRandomNumberInRange(0, 255);
@@ -149,7 +149,7 @@ void CRC_LightsClass::setRandomColor(){
 * 2 = individual PWM only
 * 3 = individual and group PWM
 */
-void CRC_LightsClass::setLed(CRC_PCA9635 & ledBank, uint8_t ledNum, uint8_t level)
+void CRC_Lights::setLed(CRC_PCA9635 & ledBank, uint8_t ledNum, uint8_t level)
 {
 	ledBank.setLed(ledNum, pgm_read_byte(&LIGHTS_LED_GAMMA[level]));
 	if (level > 0)
@@ -157,22 +157,22 @@ void CRC_LightsClass::setLed(CRC_PCA9635 & ledBank, uint8_t ledNum, uint8_t leve
 		allLedsOff = false;
 	}
 }
-void CRC_LightsClass::setLeftLed(uint8_t ledNum, uint8_t level)
+void CRC_Lights::setLeftLed(uint8_t ledNum, uint8_t level)
 {
 	setLed(ledLeft, ledNum, level);
 }
-void CRC_LightsClass::setRightLed(uint8_t ledNum, uint8_t level)
+void CRC_Lights::setRightLed(uint8_t ledNum, uint8_t level)
 {
 	setLed(ledRight, ledNum, level);
 }
-boolean CRC_LightsClass::setAllLeds(uint8_t red, uint8_t green, uint8_t blue)
+boolean CRC_Lights::setAllLeds(uint8_t red, uint8_t green, uint8_t blue)
 {
 	for (int i = 0; i < 10; i++) {
 		crcLights.setLed(i, red, green, blue);
 	}
 	return true;
 }
-boolean CRC_LightsClass::setLed(uint8_t ledId, uint8_t red, uint8_t green, uint8_t blue)
+boolean CRC_Lights::setLed(uint8_t ledId, uint8_t red, uint8_t green, uint8_t blue)
 {
 	if (ledId >= LIGHTS_LED_DEFINITION_COUNT) {
 		return false;
@@ -193,7 +193,7 @@ boolean CRC_LightsClass::setLed(uint8_t ledId, uint8_t red, uint8_t green, uint8
 
 	return true;
 }
-boolean CRC_LightsClass::setLedHex(uint8_t ledId, String hexString) {
+boolean CRC_Lights::setLedHex(uint8_t ledId, String hexString) {
 	
 	long number = strtol(&hexString[1], NULL, 16);
 	long r = number >> 16;

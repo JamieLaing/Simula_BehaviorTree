@@ -11,7 +11,7 @@
 
 #include "CRC_Lights.h"
 
-class CRC_SimulationClass {
+class CRC_Simulation {
 private:
 	uint8_t exertion;  //0-100 range representing exertion level.
 	
@@ -38,7 +38,7 @@ private:
 	static const uint8_t animationRunwayFwd = 2;
 
 public:
-	CRC_SimulationClass();
+	CRC_Simulation();
 	void tick();
 	void showLedBio();
 	void showLedNone();
@@ -51,7 +51,7 @@ public:
 	int straightSpeed;
 };
 
-extern CRC_SimulationClass simulation;
+extern CRC_Simulation simulation;
 
 #endif
 

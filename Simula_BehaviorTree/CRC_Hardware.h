@@ -34,7 +34,7 @@ struct HARDWARE_STATE {
 };
 extern struct HARDWARE_STATE hardwareState;
 
-class CRC_HardwareClass
+class CRC_Hardware
 {
 public:
 	// Define Pin's by Hardware Revisions
@@ -111,7 +111,7 @@ private:
 	void setupSPI();
 };
 
-extern CRC_HardwareClass hardware;
+extern CRC_Hardware hardware;
 
 #endif
 
